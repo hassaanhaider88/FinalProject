@@ -5,6 +5,7 @@ import AboutUs from "./Pages/AboutUs";
 import NavBar from "./Components/NavBar";
 import CourseDetail from "./Pages/CourseDetail";
 import CourseListing from "./Pages/CourseListing";
+import FooterCom from "./Components/FooterCom";
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
 
         <Route path="/course/:id" element={<CourseDetail />} />
       </Routes>
+      <FooterCom />
     </>
   );
 };
