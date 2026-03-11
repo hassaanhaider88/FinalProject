@@ -22,7 +22,7 @@ const categories = [
 ];
 
 export default function EduLe() {
-  const [activeCategory, setActiveCategory] = useState("UI/UX Design");
+  const [activeCategory, setActiveCategory] = useState("All");
   const { AllCourses } = useContext(CourseContext);
   return (
     <div className="min-h-screen bg-white font-sans">

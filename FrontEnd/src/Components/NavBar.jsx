@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { FaBars, FaGraduationCap, FaTimes } from "react-icons/fa";
 import { HiOutlineAcademicCap } from "react-icons/hi";
 import { Link } from "react-router-dom";
+import { UserContext } from "../Store/UserStore";
 
 const NavBar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { UserData } = useContext(UserContext);
 
   const navLinks = [
     {
@@ -47,14 +49,23 @@ const NavBar = () => {
           ))}
         </ul>
 
-        {/* CTA buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <button className="text-sm text-gray-700 font-medium hover:text-green-600 transition-colors">
-            Sign In
-          </button>
-          <button className="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors">
-            Sign Up
-          </button>
+          {UserData.name ? (
+            "User Here"
+          ) : (
+            <>
+              <Link to={"/login"}>
+                <button className="text-sm text-gray-700 font-medium hover:text-green-600 transition-colors">
+                  Login
+                </button>
+              </Link>
+              <Link to={"/register"}>
+                <button className="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors">
+                  Register
+                </button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile hamburger */}
