@@ -1,19 +1,22 @@
 const courses = [
-  {
-    id: 1,
-    image:
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80",
-    instructor: "Jason Williams",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    category: "UI/UX Design",
-    categoryColor: "bg-green-100 text-green-600",
-    title: "Data Science and Machine Learning with Python – Hands On!",
-    duration: "08 hr 15 mins",
-    lectures: "29 Lectures",
-    price: "$385.00",
-    original: "$440.00",
-    rating: 4.9,
-  },
+  // {
+  //   id: "ertyudgh567vbnm567vbnm",
+  //   image:
+  //     "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80",
+  //   instructor: {
+  //     name: "HMK CodeWeb",
+  //     picture: "https://randomuser.me/api/portraits/men/32.jpg",
+  //   },
+  //   avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+  //   category: "UI/UX Design",
+  //   categoryColor: "bg-green-100 text-green-600",
+  //   title: "Data Science and Machine Learning with Python – Hands On!",
+  //   duration: "08 hr 15 mins",
+  //   lectures: "29 Lectures",
+  //   price: "$385.00",
+  //   original: "$440.00",
+  //   rating: 4.9,
+  // },
   {
     id: 2,
     image:
