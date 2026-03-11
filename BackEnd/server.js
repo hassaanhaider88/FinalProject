@@ -1,0 +1,26 @@
+import express from "express";
+import dontenv from "dotenv"
+import cors from "cors";
+import requestLogger from "./middlewares/requestLogger.js";
+import userRoutes from "./Routes/userRoutes.js";
+import ConnectToDB from "./config/connectDB.js"
+const app = express();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(cors())
+dontenv.config();
+app.use(requestLogger)
+
+ConnectToDB()
+
+const PORT = process.env.PORT || 8000;
+
+// testing route
+app.get("/", (req, res) => res.send("API Running"));
+
+// user auth related routes
+app.use("/api/auth", userRoutes)
+
+app.listen(PORT, () => console.log(`Server Running on ${PORT}`));

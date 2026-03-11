@@ -23,6 +23,7 @@ const RegisterPage = () => {
     try {
       setLoading(true);
       const result = await handleUserRegister(FormData);
+      console.log(result);
       if (result.success) {
         setUserData({
           name: result.data.name,
@@ -31,6 +32,7 @@ const RegisterPage = () => {
           enrolledCourses: result.data.enrolledCourses,
           createdCourses: result.data.createdCourses,
         });
+        localStorage.setItem("LMSUser", result.token);
         navigate("/");
       } else {
         alert(result.message);

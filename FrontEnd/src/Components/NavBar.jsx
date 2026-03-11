@@ -3,6 +3,7 @@ import { FaBars, FaGraduationCap, FaTimes } from "react-icons/fa";
 import { HiOutlineAcademicCap } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { UserContext } from "../Store/UserStore";
+import UserCard from "./UserCard";
 
 const NavBar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -51,7 +52,7 @@ const NavBar = () => {
 
         <div className="hidden md:flex items-center gap-3">
           {UserData.name ? (
-            "User Here"
+            <UserCard />
           ) : (
             <>
               <Link to={"/login"}>
@@ -92,12 +93,20 @@ const NavBar = () => {
             ))}
           </ul>
           <div className="flex gap-3 pt-2">
-            <button className="text-sm text-gray-700 font-medium border border-gray-300 px-4 py-2 rounded-lg w-full">
-              Sign In
-            </button>
-            <button className="bg-green-600 text-white text-sm font-semibold px-4 py-2 rounded-lg w-full">
-              Sign Up
-            </button>
+            {UserData.name ? (
+              <div className="w-full flex justify-end">
+                <UserCard />
+              </div>
+            ) : (
+              <>
+                <button className="text-sm text-gray-700 font-medium border border-gray-300 px-4 py-2 rounded-lg w-full">
+                  Sign In
+                </button>
+                <button className="bg-green-600 text-white text-sm font-semibold px-4 py-2 rounded-lg w-full">
+                  Sign Up
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
