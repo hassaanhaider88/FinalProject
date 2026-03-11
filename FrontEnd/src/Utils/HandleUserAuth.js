@@ -5,26 +5,19 @@ export const handleUserLogin = async (formData) => {
         if (!formData.email || !formData.password) {
             return null;
         }
-        // const response = await fetch(`${BackEnd_URI}/api/auth/login`, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(formData),
-        // });
-        // const data = await response.json();
-        // here will be real data later
-        let data = {
-            success: true,
-            message: "Login successfully",
-            data: {
-                name: "test",
-                email: "test@test.com",
-                role: "admin",
-                enrolledCourses: [],
-                createdCourses: [],
+        const response = await fetch(`${BackEnd_URI}/api/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
             },
-        };
+            body: JSON.stringify({
+                email: formData.email,
+                password: formData.password,
+            }),
+        });
+        const data = await response.json();
+        // here will be real data later
+
         return data;
     } catch (error) {
         console.log(error);

@@ -29,6 +29,7 @@ const LoginPage = () => {
           enrolledCourses: result.data.enrolledCourses,
           createdCourses: result.data.createdCourses,
         });
+        localStorage.setItem("LMSUser", result.token);
         navigate("/");
       } else {
         alert(result.message);
