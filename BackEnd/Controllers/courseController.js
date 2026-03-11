@@ -32,7 +32,7 @@ const getSingleCourse = async (req, res) => {
                 message: "Invalid Id",
             });
         }
-        const course = await courseModel.findById(id);
+        const course = await courseModel.findById(id).populate("instructor");
         if (!course) {
             return res.json({
                 success: false,
@@ -86,7 +86,6 @@ const createCourse = async (req, res) => {
             message: "Course Created",
             data: course,
         });
-
     } catch (error) {
         return res.json({
             success: false,
@@ -176,10 +175,38 @@ const deleteCourse = async (req, res) => {
     }
 };
 
+const sendInstructorsCourses = async (req, res) => {
+    try {
+        if (!req.user || !req.user._id) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+        const courses = await courseModel.find({ instructor: req.user._id });
+        if (!courses) {
+            return res.json({
+                success: false,
+                message: "No Courses Found",
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: "Courses Found",
+            data: courses,
+        });
+    } catch (error) {
+        console.log(error)
+        return res.json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
 export {
     getAllCourses,
     getSingleCourse,
     createCourse,
     updateCourse,
     deleteCourse,
+    sendInstructorsCourses,
 };

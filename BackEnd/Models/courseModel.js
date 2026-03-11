@@ -11,7 +11,7 @@ const courseSchema = new Schema({
     },
     instructor: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "users",
+        ref: "User",
         required: true,
     },
     category: {
@@ -26,6 +26,6 @@ const courseSchema = new Schema({
     timestamps: true
 })
 
-const courseModel = model("course", courseSchema);
+const courseModel = model("Course", courseSchema);
 
 export default courseModel;

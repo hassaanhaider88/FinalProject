@@ -5,12 +5,14 @@ import {
     createCourse,
     updateCourse,
     deleteCourse,
+    sendInstructorsCourses
 } from "../Controllers/courseController.js";
 import AuthMiddleWare from "../middlewares/Auth.MiddleWare.js"
 const router = express.Router();
 
 
 router.get("/all", getAllCourses);
+router.get("/instructor-courses", AuthMiddleWare, sendInstructorsCourses)
 router.get("/:id", getSingleCourse);
 
 // protected routes 
