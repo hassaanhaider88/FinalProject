@@ -11,11 +11,14 @@ import CourseListing from "./Pages/CourseListing";
 import FooterCom from "./Components/FooterCom";
 import LoginPage from "./Pages/LoginPage";
 import RegisterPage from "./Pages/Register";
-import Dashboard from "./Pages/Dashboard";
+
 import { useContext } from "react";
 import { UserContext } from "./Store/UserStore";
 import { useEffect } from "react";
 import { getLocalStorageUser } from "./Utils/HandleUserAuth";
+import UserDashboard from "./Pages/UserDashboard";
+import InstructorDashBoard from "./Pages/InstructorDashBoard";
+import AdminDashBoard from "./Pages/AdminDashBoard";
 
 const App = () => {
   const { UserData, setUserData } = useContext(UserContext);
@@ -53,7 +56,19 @@ const App = () => {
         {/* Only Login User  */}
         <Route
           path="/dashboard"
-          element={!UserData?.name ? <Home /> : <Dashboard />}
+          element={
+            !UserData?.name ? (
+              <Home />
+            ) : UserData.role === "user" ? (
+              <UserDashboard />
+            ) : UserData.role === "instructor" ? (
+              <InstructorDashBoard />
+            ) : UserData.role === "admin" ? (
+              <AdminDashBoard />
+            ) : (
+              <Home />
+            )
+          }
         />
       </Routes>
       <FooterCom />

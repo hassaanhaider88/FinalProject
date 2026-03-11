@@ -2,8 +2,11 @@ import express from "express";
 import dontenv from "dotenv"
 import cors from "cors";
 import requestLogger from "./middlewares/requestLogger.js";
-import userRoutes from "./Routes/userRoutes.js";
 import ConnectToDB from "./config/connectDB.js"
+
+import userRoutes from "./Routes/userRoutes.js";
+import courseRoutes from "./Routes/courseRoutes.js"
+
 const app = express();
 
 app.use(express.json());
@@ -22,5 +25,8 @@ app.get("/", (req, res) => res.send("API Running"));
 
 // user auth related routes
 app.use("/api/auth", userRoutes)
+
+// course routes
+app.use("/api/course", courseRoutes)
 
 app.listen(PORT, () => console.log(`Server Running on ${PORT}`));

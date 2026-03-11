@@ -1,14 +1,14 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { FiLogOut } from "react-icons/fi";
 import { RiDashboardLine } from "react-icons/ri";
 import { BiUserCircle } from "react-icons/bi";
 import { ImAccessibility } from "react-icons/im";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiUser, FiSettings, FiEye, FiBell } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import BackEnd_URI from "../Utils/BackEnd_URI";
 import { useContext } from "react";
 import { UserContext } from "../Store/UserStore";
-import { handleUserLogOut } from "../Utils/HandleUserAuth";
 
 const UserCard = () => {
   const [showProfileCard, setShowProfileCard] = useState(false);
@@ -22,24 +22,14 @@ const UserCard = () => {
   const navigate = useNavigate();
 
   const handleUserLogOutClick = async () => {
-    const token = localStorage.getItem("token");
-    try {
-      if (token) {
-        const data = await handleUserLogOut(token);
-        if (data.success) {
-          localStorage.removeItem("token");
-          setUserData({});
-          navigate("/login");
-        } else {
-          console.log(data.message);
-        }
-      } else {
-        alert("please login again...");
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    setUserData({});
+    localStorage.removeItem("LMSUser");
+    alert("log Out successfully");
   };
+
+  useEffect(() => {
+    setShowProfileCard(false);
+  }, [navigate]);
 
   return (
     <div className="relative inline-block">

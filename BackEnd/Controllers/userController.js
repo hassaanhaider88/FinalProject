@@ -155,4 +155,5 @@ const LoggedUser = async (req, res) => {
         })
     }
 }
+
 export { LoginUser, RegisterUser, LoggedUser };

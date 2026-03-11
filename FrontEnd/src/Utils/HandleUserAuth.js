@@ -50,22 +50,6 @@ export const handleUserRegister = async (formData) => {
     }
 };
 
-export const handleUserLogOut = async (token) => {
-    try {
-        const res = await fetch(`${BackEnd_URI}/api/auth/user/logout`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Application: `Bearer ${token}`,
-            },
-        });
-        const data = await res.json();
-        return data;
-    } catch (error) {
-        console.log(error);
-        return null;
-    }
-};
 
 export const getLocalStorageUser = async (token) => {
     try {
