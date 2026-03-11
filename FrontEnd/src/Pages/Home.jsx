@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   FaStar,
   FaChevronLeft,
@@ -8,9 +8,9 @@ import {
   FaArrowRight,
 } from "react-icons/fa";
 
-import courses from "../DummyData/CourseData";
 import { Link } from "react-router-dom";
 import SingleCourse from "../assets/SingleCourse";
+import { CourseContext } from "../Store/CourseStore";
 
 const categories = [
   "All",
@@ -23,7 +23,7 @@ const categories = [
 
 export default function EduLe() {
   const [activeCategory, setActiveCategory] = useState("UI/UX Design");
-
+  const { AllCourses } = useContext(CourseContext);
   return (
     <div className="min-h-screen bg-white font-sans">
       <section className="bg-[#f0faf4] overflow-hidden">
@@ -71,7 +71,7 @@ export default function EduLe() {
             <div className="bg-green-700 text-white rounded-full w-28 h-28 flex flex-col items-center justify-center shadow-2xl shadow-green-300 relative">
               <FaBookOpen size={22} className="mb-1 opacity-80" />
               <span className="text-2xl font-extrabold leading-none">
-                {courses.length || 10}+
+                {AllCourses.length || 10}+
               </span>
               <span className="text-xs opacity-80 mt-0.5">courses</span>
 
@@ -156,7 +156,7 @@ export default function EduLe() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((course) => (
+            {AllCourses.map((course) => (
               <SingleCourse
                 key={course.id}
                 course={course}

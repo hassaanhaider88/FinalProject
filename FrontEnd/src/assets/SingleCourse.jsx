@@ -1,7 +1,7 @@
 import React from "react";
 import { FaPlayCircle, FaRegClock, FaUsers } from "react-icons/fa";
 
-const SingleCourse = ({ course, activeCategory }) => {
+const SingleCourse = ({ course, activeCategory = "All" }) => {
   return (
     <div
       className={`bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer ${activeCategory === course.category || activeCategory === "All" ? "block" : "hidden"}`}
