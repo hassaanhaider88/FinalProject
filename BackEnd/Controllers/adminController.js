@@ -1,16 +1,17 @@
-import userModel from "../Models/UserModel.js"
+import userModel from "../Models/UserModel.js";
 import courseModel from "../Models/courseModel.js";
 
-/* ════════════════════════════════════════════════
-   USER MANAGEMENT
-════════════════════════════════════════════════ */
-
-// GET /api/admin/users
 const getAllUsers = async (req, res) => {
     try {
-        // exclude password from results
-        const users = await userModel.find().select("-password").sort({ createdAt: -1 });
+        const users = await userModel
+            .find().select("-password").sort({ createdAt: -1 });
 
+        if (!users) {
+            return res.json({
+                success: false,
+                message: "No Users Found"
+            })
+        }
         return res.json({
             success: true,
             message: "All Users Fetched",
@@ -22,10 +23,13 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-// GET /api/admin/users/:id
+
 const getSingleUser = async (req, res) => {
     try {
         const { id } = req.params;
+        if (!id) {
+            return res.json({ success: false, message: "Invalid Id" });
+        }
         const user = await userModel.findById(id).select("-password");
 
         if (!user) {
@@ -42,22 +46,28 @@ const getSingleUser = async (req, res) => {
     }
 };
 
-// PUT /api/admin/users/:id  — update role or any field
+
 const updateUserRole = async (req, res) => {
     try {
         const { id } = req.params;
+        if (!id) {
+            return res.json({ success: false, message: "Invalid Id" });
+        }
         const { role } = req.body;
-
+        if (!role) {
+            return res.json({ success: false, message: "Invalid Role" });
+        }
         const allowedRoles = ["student", "instructor", "admin"];
         if (!allowedRoles.includes(role)) {
-            return res.json({ success: false, message: "Invalid role. Allowed: student, instructor, admin" });
+            return res.json({
+                success: false,
+                message: "Invalid role. Allowed: student, instructor, admin",
+            });
         }
 
-        const user = await userModel.findByIdAndUpdate(
-            id,
-            { role },
-            { new: true }
-        ).select("-password");
+        const user = await userModel
+            .findByIdAndUpdate(id, { role }, { new: true })
+            .select("-password");
 
         if (!user) {
             return res.json({ success: false, message: "User Not Found" });
@@ -73,14 +83,19 @@ const updateUserRole = async (req, res) => {
     }
 };
 
-// DELETE /api/admin/users/:id
+
 const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
+        if (!id) {
+            return res.json({ success: false, message: "Invalid Id" });
+        }
 
-        // prevent admin from deleting themselves
         if (req.user._id.toString() === id) {
-            return res.json({ success: false, message: "You cannot delete your own account" });
+            return res.json({
+                success: false,
+                message: "You cannot delete your own account",
+            });
         }
 
         const user = await userModel.findByIdAndDelete(id);
@@ -99,17 +114,11 @@ const deleteUser = async (req, res) => {
     }
 };
 
-/* ════════════════════════════════════════════════
-   COURSE MANAGEMENT (Admin Override)
-════════════════════════════════════════════════ */
 
-// GET /api/admin/courses
 const getAllCoursesAdmin = async (req, res) => {
     try {
         const courses = await courseModel
-            .find()
-            .populate("instructor", "-password")
-            .sort({ createdAt: -1 });
+            .find().populate("instructor", "-password").sort({ createdAt: -1 });
 
         return res.json({
             success: true,
@@ -122,11 +131,13 @@ const getAllCoursesAdmin = async (req, res) => {
     }
 };
 
-// DELETE /api/admin/courses/:id  — admin can delete any course
+
 const deleteCourseAdmin = async (req, res) => {
     try {
         const { id } = req.params;
-
+        if (!id) {
+            return res.json({ success: false, message: "Invalid Id" });
+        }
         const course = await courseModel.findByIdAndDelete(id);
 
         if (!course) {
@@ -143,14 +154,21 @@ const deleteCourseAdmin = async (req, res) => {
     }
 };
 
-// PUT /api/admin/courses/:id  — admin can update any course
+
 const updateCourseAdmin = async (req, res) => {
     try {
         const { id } = req.params;
+        if (!id) {
+            return res.json({ success: false, message: "Invalid Id" });
+        }
         const { title, description, category, price } = req.body;
 
         const course = await courseModel
-            .findByIdAndUpdate(id, { title, description, category, price }, { new: true })
+            .findByIdAndUpdate(
+                id,
+                { title, description, category, price },
+                { new: true },
+            )
             .populate("instructor", "-password");
 
         if (!course) {
@@ -167,32 +185,39 @@ const updateCourseAdmin = async (req, res) => {
     }
 };
 
-/* ════════════════════════════════════════════════
-   ANALYTICS / REPORTS
-════════════════════════════════════════════════ */
 
-// GET /api/admin/analytics
 const getAnalytics = async (req, res) => {
     try {
         const [users, courses] = await Promise.all([
             userModel.find().select("-password"),
             courseModel.find().populate("instructor", "name email role"),
         ]);
+        if (!users || !courses) {
+            return res.json({
+                success: false,
+                message: "No Data Found"
+            })
+        }
 
-        // ── User Stats ─────────────────────────────
         const totalUsers = users.length;
         const totalStudents = users.filter((u) => u.role === "student").length;
-        const totalInstructors = users.filter((u) => u.role === "instructor").length;
+        const totalInstructors = users.filter(
+            (u) => u.role === "instructor",
+        ).length;
         const totalAdmins = users.filter((u) => u.role === "admin").length;
 
-        // ── Course Stats ───────────────────────────
+
         const totalCourses = courses.length;
         const freeCourses = courses.filter((c) => Number(c.price) === 0).length;
         const paidCourses = totalCourses - freeCourses;
-        const totalRevenue = courses.reduce((sum, c) => sum + (Number(c.price) || 0), 0);
-        const avgCoursePrice = totalCourses > 0 ? (totalRevenue / totalCourses).toFixed(2) : 0;
+        const totalRevenue = courses.reduce(
+            (sum, c) => sum + (Number(c.price) || 0),
+            0,
+        );
+        const avgCoursePrice =
+            totalCourses > 0 ? (totalRevenue / totalCourses).toFixed(2) : 0;
 
-        // ── Category Breakdown ────────────────────
+
         const categoryMap = {};
         courses.forEach((c) => {
             if (c.category) {
@@ -203,36 +228,51 @@ const getAnalytics = async (req, res) => {
             .map(([name, count]) => ({ name, count }))
             .sort((a, b) => b.count - a.count);
 
-        // ── Monthly Course Creation (last 6 months) ─
+
         const now = new Date();
         const monthlyCourses = Array.from({ length: 6 }, (_, i) => {
             const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
-            const label = d.toLocaleString("en-US", { month: "short", year: "numeric" });
+            const label = d.toLocaleString("en-US", {
+                month: "short",
+                year: "numeric",
+            });
             const count = courses.filter((c) => {
                 const cd = new Date(c.createdAt);
-                return cd.getMonth() === d.getMonth() && cd.getFullYear() === d.getFullYear();
+                return (
+                    cd.getMonth() === d.getMonth() && cd.getFullYear() === d.getFullYear()
+                );
             }).length;
             return { month: label, count };
         });
 
-        // ── Monthly User Signups (last 6 months) ───
+
         const monthlyUsers = Array.from({ length: 6 }, (_, i) => {
             const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
-            const label = d.toLocaleString("en-US", { month: "short", year: "numeric" });
+            const label = d.toLocaleString("en-US", {
+                month: "short",
+                year: "numeric",
+            });
             const count = users.filter((u) => {
                 const cd = new Date(u.createdAt);
-                return cd.getMonth() === d.getMonth() && cd.getFullYear() === d.getFullYear();
+                return (
+                    cd.getMonth() === d.getMonth() && cd.getFullYear() === d.getFullYear()
+                );
             }).length;
             return { month: label, count };
         });
 
-        // ── Top Instructors by course count ────────
+
         const instructorMap = {};
         courses.forEach((c) => {
             if (c.instructor) {
                 const key = c.instructor._id?.toString();
                 if (!instructorMap[key]) {
-                    instructorMap[key] = { name: c.instructor.name, email: c.instructor.email, courses: 0, revenue: 0 };
+                    instructorMap[key] = {
+                        name: c.instructor.name,
+                        email: c.instructor.email,
+                        courses: 0,
+                        revenue: 0,
+                    };
                 }
                 instructorMap[key].courses += 1;
                 instructorMap[key].revenue += Number(c.price) || 0;
@@ -246,8 +286,19 @@ const getAnalytics = async (req, res) => {
             success: true,
             message: "Analytics Fetched",
             data: {
-                users: { total: totalUsers, students: totalStudents, instructors: totalInstructors, admins: totalAdmins },
-                courses: { total: totalCourses, free: freeCourses, paid: paidCourses, totalRevenue, avgPrice: avgCoursePrice },
+                users: {
+                    total: totalUsers,
+                    students: totalStudents,
+                    instructors: totalInstructors,
+                    admins: totalAdmins,
+                },
+                courses: {
+                    total: totalCourses,
+                    free: freeCourses,
+                    paid: paidCourses,
+                    totalRevenue,
+                    avgPrice: avgCoursePrice,
+                },
                 categoryBreakdown,
                 monthlyCourses,
                 monthlyUsers,
