@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { FaPlayCircle } from "react-icons/fa";
+import { UserContext } from "../Store/UserStore";
+import { Link } from "react-router-dom";
 
 const SingleCourse = ({ course, activeCategory = "All" }) => {
+  const { UserData } = useContext(UserContext);
   const [IsEnrolled, setIsEnrolled] = useState(false);
   const show = activeCategory === "All" || activeCategory === course.category;
   console.log(course);
@@ -10,7 +13,6 @@ const SingleCourse = ({ course, activeCategory = "All" }) => {
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer">
-      {/* Course Thumbnail (first lesson youtube thumbnail) */}
       <div className="relative overflow-hidden">
         {course?.lessons?.length > 0 ? (
           <img
@@ -63,18 +65,28 @@ const SingleCourse = ({ course, activeCategory = "All" }) => {
             {new Date(course.createdAt).toLocaleDateString()}
           </span>
         </div>
-        {/*  Enrollment Button */}
-        <button
-          disabled={IsEnrolled}
-          onClick={() => setIsEnrolled(true)}
-          className={` ${
-            IsEnrolled
-              ? "cursor-not-allowed text-black bg-[#E5E7EB] "
-              : "bg-green-600 text-white hover:bg-green-700"
-          }  font-bold px-8 py-3 mt-2 rounded-xl text-sm transition-colors shadow-lg shadow-green-200 w-full`}
-        >
-          {IsEnrolled ? "Enrolled" : "Enroll Now"}
-        </button>
+        {UserData.name ? (
+          <button
+            disabled={IsEnrolled}
+            onClick={() => setIsEnrolled(true)}
+            className={` ${
+              IsEnrolled
+                ? "cursor-not-allowed text-black bg-[#E5E7EB] "
+                : "bg-green-600 text-white hover:bg-green-700"
+            }  font-bold px-8 py-3 mt-2 rounded-xl text-sm transition-colors shadow-lg shadow-green-200 w-full`}
+          >
+            {IsEnrolled ? "Enrolled" : "Enroll Now"}
+          </button>
+        ) : (
+          <Link to={"/login"}>
+            <button
+              className="cursor-not-allowed text-white bg-green-600 hover:bg-green-700
+           font-bold px-8 py-3 mt-2 rounded-xl text-sm transition-colors shadow-lg shadow-green-200 w-full"
+            >
+              Login First To Enroll
+            </button>
+          </Link>
+        )}
       </div>
     </div>
   );
