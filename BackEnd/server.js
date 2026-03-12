@@ -5,7 +5,8 @@ import requestLogger from "./middlewares/requestLogger.js";
 import ConnectToDB from "./config/connectDB.js"
 
 import userRoutes from "./Routes/userRoutes.js";
-import courseRoutes from "./Routes/courseRoutes.js"
+import courseRoutes from "./Routes/courseRoutes.js";
+import adminRoutes from "./Routes/adminRoutes.js";
 
 const app = express();
 
@@ -27,6 +28,8 @@ app.get("/", (req, res) => res.send("API Running"));
 app.use("/api/auth", userRoutes)
 
 // course routes
-app.use("/api/course", courseRoutes)
+app.use("/api/course", courseRoutes);
+
+app.use("/api/admin", adminRoutes)
 
 app.listen(PORT, () => console.log(`Server Running on ${PORT}`));
