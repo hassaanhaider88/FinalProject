@@ -12,14 +12,26 @@ const enrollmentSchema = new mongoose.Schema(
             ref: "Course",
             required: true,
         },
+        // stores IDs of lessons the student has finished
+        completedLessons: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+            },
+        ],
+        // 0–100, auto-calculated from completedLessons vs total lessons
         progress: {
-            type: Number, // 0-100
+            type: Number,
             default: 0,
+            min: 0,
+            max: 100,
         },
     },
     { timestamps: true }
 );
 
-const EnrollmentModel = mongoose.models.Enrollment || mongoose.model("Enrollment", enrollmentSchema);
+// prevent duplicate enrollments
+enrollmentSchema.index({ student: 1, course: 1 }, { unique: true });
 
-export default EnrollmentModel;
+const enrollmentModel = mongoose.model("Enrollment", enrollmentSchema);
+
+export default enrollmentModel;

@@ -75,7 +75,7 @@ const App = () => {
           element={
             !UserData?.name ? (
               <Home />
-            ) : UserData.role === "user" ? (
+            ) : UserData.role === "student" ? (
               <UserDashboard />
             ) : UserData.role === "instructor" ? (
               <InstructorDashBoard />
