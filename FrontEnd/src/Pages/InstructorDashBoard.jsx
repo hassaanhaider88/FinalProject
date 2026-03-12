@@ -1,42 +1,26 @@
+import { BiUpload } from "react-icons/bi";
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 
 import { useState, useEffect } from "react";
 import {
-  FaTwitter,
-  FaInstagram,
-  FaYoutube,
-  FaLinkedin,
-  FaPhoneAlt,
-  FaEnvelope,
-  FaBars,
   FaTimes,
-  FaGraduationCap,
-  FaUsers,
   FaBookOpen,
-  FaStar,
   FaPlus,
   FaEdit,
   FaTrash,
   FaEye,
   FaSearch,
-  FaHome,
-  FaAngleRight,
-  FaChartBar,
-  FaDollarSign,
   FaCheckCircle,
   FaTimesCircle,
   FaSpinner,
   FaExclamationTriangle,
   FaFilter,
-  FaSortAmountDown,
   FaArrowRight,
 } from "react-icons/fa";
 import { MdOutlineOndemandVideo } from "react-icons/md";
 import BackEnd_URI from "../Utils/BackEnd_URI";
 import { useNavigate } from "react-router-dom";
-
-const BASE_URL = "http://localhost:5000/api/course";
 
 const CATEGORIES = [
   "Data Science",
@@ -48,7 +32,6 @@ const CATEGORIES = [
   "Science",
 ];
 
-/* ── Toast ──────────────────────────────────────────────── */
 function Toast({ toast, onClose }) {
   useEffect(() => {
     const t = setTimeout(onClose, 3500);
@@ -79,7 +62,6 @@ function Toast({ toast, onClose }) {
   );
 }
 
-/* ── Confirm Modal ──────────────────────────────────────── */
 function ConfirmModal({ open, title, desc, onConfirm, onCancel, loading }) {
   if (!open) return null;
   return (
@@ -113,7 +95,6 @@ function ConfirmModal({ open, title, desc, onConfirm, onCancel, loading }) {
   );
 }
 
-/* ── Course Form Modal ──────────────────────────────────── */
 function CourseModal({ open, onClose, onSubmit, editData, loading }) {
   const empty = { title: "", description: "", category: "", price: "" };
   const [form, setForm] = useState(empty);
@@ -278,7 +259,6 @@ function CourseModal({ open, onClose, onSubmit, editData, loading }) {
   );
 }
 
-/* ── View Modal ─────────────────────────────────────────── */
 function ViewModal({ open, course, onClose }) {
   if (!open || !course) return null;
   return (
@@ -352,24 +332,6 @@ function ViewModal({ open, course, onClose }) {
   );
 }
 
-/* ── Stat Card ──────────────────────────────────────────── */
-function StatCard({ icon, value, label, color }) {
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex items-center gap-4">
-      <div
-        className={`w-12 h-12 ${color} rounded-xl flex items-center justify-center shrink-0`}
-      >
-        {icon}
-      </div>
-      <div>
-        <p className="text-2xl font-extrabold text-gray-900">{value}</p>
-        <p className="text-xs text-gray-400">{label}</p>
-      </div>
-    </div>
-  );
-}
-
-/* ── Main Dashboard ─────────────────────────────────────── */
 export default function InstructorDashboard() {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
@@ -381,19 +343,16 @@ export default function InstructorDashboard() {
     navigate("/");
   }
 
-  // Modals
   const [formOpen, setFormOpen] = useState(false);
   const [editData, setEditData] = useState(null);
   const [viewCourse, setViewCourse] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
 
-  // Filters
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState("All");
 
   const showToast = (message, type = "success") => setToast({ message, type });
 
-  /* ── API Calls ──────────────────────────────────────────── */
   const fetchCourses = async () => {
     setLoading(true);
     try {
@@ -747,9 +706,16 @@ export default function InstructorDashboard() {
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-end gap-2">
                             <button
+                              title="Upload Lessons"
+                              className="py-2 px-3"
+                              onClick={() => navigate(`/upload/${course._id}`)}
+                            >
+                              <BiUpload size={14} />
+                            </button>
+                            <button
+                              title="View Course"
                               onClick={() => navigate(`/course/${course._id}`)}
                               className="w-8 h-8 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center transition-colors"
-                              title="View"
                             >
                               <FaEye size={13} />
                             </button>
@@ -759,14 +725,14 @@ export default function InstructorDashboard() {
                                 setFormOpen(true);
                               }}
                               className="w-8 h-8 bg-green-50 hover:bg-green-100 text-green-600 rounded-lg flex items-center justify-center transition-colors"
-                              title="Edit"
+                              title="Edit Course"
                             >
                               <FaEdit size={13} />
                             </button>
                             <button
                               onClick={() => setConfirmDelete(course)}
                               className="w-8 h-8 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg flex items-center justify-center transition-colors"
-                              title="Delete"
+                              title="Delete Course"
                             >
                               <FaTrash size={12} />
                             </button>

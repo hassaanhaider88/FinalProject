@@ -5,7 +5,8 @@ import {
     createCourse,
     updateCourse,
     deleteCourse,
-    sendInstructorsCourses
+    sendInstructorsCourses,
+    addLesson
 } from "../Controllers/courseController.js";
 import AuthMiddleWare from "../middlewares/Auth.MiddleWare.js"
 const router = express.Router();
@@ -19,6 +20,7 @@ router.get("/:id", getSingleCourse);
 router.post("/create", AuthMiddleWare, createCourse);
 router.put("/:id", AuthMiddleWare, updateCourse);
 router.delete("/:id", AuthMiddleWare, deleteCourse);
+router.post("/:courseId/lesson", AuthMiddleWare, addLesson)
 
 
 export default router;

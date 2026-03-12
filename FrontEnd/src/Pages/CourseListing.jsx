@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { CourseContext } from "../Store/CourseStore";
-import SingleCourse from "../assets/SingleCourse";
+import SingleCourse from "../Components/SingleCourse";
 
 const CourseListing = () => {
   const { AllCourses } = useContext(CourseContext);

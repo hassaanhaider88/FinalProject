@@ -19,6 +19,7 @@ import { getLocalStorageUser } from "./Utils/HandleUserAuth";
 import UserDashboard from "./Pages/UserDashboard";
 import InstructorDashBoard from "./Pages/InstructorDashBoard";
 import AdminDashBoard from "./Pages/AdminDashBoard";
+import UploadLesson from "./Pages/UploadLesson";
 
 const App = () => {
   const { UserData, setUserData } = useContext(UserContext);
@@ -48,6 +49,21 @@ const App = () => {
         <Route path="/about" element={<AboutUs />} />
         <Route path="/all-course" element={<CourseListing />} />
         <Route path="/course/:id" element={<CourseDetail />} />
+
+        <Route
+          path="/upload/:courseId"
+          element={
+            UserData.name ? (
+              UserData.role === "instructor" ? (
+                <UploadLesson />
+              ) : (
+                <Home />
+              )
+            ) : (
+              <Home />
+            )
+          }
+        />
 
         {/* auth pages */}
         <Route path="/login" element={<LoginPage />} />

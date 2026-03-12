@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import data from "../DummyData/CourseData";
+import BackEnd_URI from "../Utils/BackEnd_URI";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const CourseContext = createContext(null);
@@ -18,8 +18,15 @@ export const CourseProvider = ({ children }) => {
 
 const fetchCourser = async (setAllCourses) => {
   try {
+    const res = await fetch(`${BackEnd_URI}/api/course/all`);
+    const data = await res.json();
+    console.log(data);
+    if (data.success) {
+      setAllCourses(data.data);
+    } else {
+      console.log(data.message);
+    }
     // here real fetch request will be made
-    setAllCourses(data);
   } catch (error) {
     console.log(error.message);
   }

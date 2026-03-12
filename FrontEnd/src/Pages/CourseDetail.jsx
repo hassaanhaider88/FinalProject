@@ -13,8 +13,7 @@ import {
   FaEnvelope,
   FaShieldAlt,
 } from "react-icons/fa";
-
-const BASE_URL = "http://localhost:3000/api/course";
+import BackEnd_URI from "../Utils/BackEnd_URI";
 
 const CATEGORY_COLORS = {
   Design: "bg-purple-100 text-purple-700 border-purple-200",
@@ -49,7 +48,7 @@ export default function SingleCoursePage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${BASE_URL}/${id}`);
+        const res = await fetch(`${BackEnd_URI}/api/course/${id}`);
         const data = await res.json();
         if (data.success) {
           setCourse(data.data);
@@ -57,7 +56,7 @@ export default function SingleCoursePage() {
           setError(data.message || "Course not found.");
         }
       } catch (err) {
-        setError("Unable to connect to the server. Please try again.",err);
+        setError("Unable to connect to the server. Please try again.", err);
       } finally {
         setLoading(false);
       }
@@ -110,10 +109,8 @@ export default function SingleCoursePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
- 
       <div className="bg-linear-to-br from-gray-900 via-gray-800 to-green-900 text-white px-4 pt-8 pb-14">
         <div className="max-w-3xl mx-auto">
-       
           <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-gray-400 hover:text-white text-sm font-medium mb-6 transition-colors group"
@@ -125,7 +122,6 @@ export default function SingleCoursePage() {
             Back to courses
           </button>
 
-
           <span
             className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border mb-4 ${catStyle}`}
           >
@@ -133,12 +129,10 @@ export default function SingleCoursePage() {
             {course.category}
           </span>
 
-
           <h1 className="text-2xl md:text-4xl font-extrabold leading-tight mb-3">
             {course.title}
           </h1>
 
-      
           <div className="flex flex-wrap gap-4 text-sm text-gray-400 mt-4">
             <span className="flex items-center gap-1.5">
               <FaCalendarAlt size={12} className="text-green-400" />
@@ -152,9 +146,7 @@ export default function SingleCoursePage() {
         </div>
       </div>
 
-  
       <div className="max-w-3xl mx-auto px-4 -mt-6 pb-16 space-y-5">
-
         <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
@@ -176,7 +168,6 @@ export default function SingleCoursePage() {
           </button>
         </div>
 
-      
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="font-extrabold text-gray-900 mb-4 flex items-center gap-2">
             <span className="w-1 h-5 bg-green-500 rounded-full" />
@@ -187,7 +178,6 @@ export default function SingleCoursePage() {
           </p>
         </div>
 
-
         {course.instructor && typeof course.instructor === "object" && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="font-extrabold text-gray-900 mb-5 flex items-center gap-2">
@@ -195,7 +185,6 @@ export default function SingleCoursePage() {
               Instructor
             </h2>
             <div className="flex items-center gap-4">
-  
               <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center shrink-0 ring-4 ring-green-50">
                 <span className="text-green-700 font-extrabold text-lg">
                   {course.instructor.name?.charAt(0).toUpperCase() || "?"}
@@ -216,10 +205,7 @@ export default function SingleCoursePage() {
 
             <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex items-center gap-2.5 bg-gray-50 rounded-xl px-4 py-3">
-                <FaEnvelope
-                  size={13}
-                  className="text-green-500 shrink-0"
-                />
+                <FaEnvelope size={13} className="text-green-500 shrink-0" />
                 <div className="min-w-0">
                   <p className="text-[10px] text-gray-400 font-semibold">
                     Email
@@ -230,10 +216,7 @@ export default function SingleCoursePage() {
                 </div>
               </div>
               <div className="flex items-center gap-2.5 bg-gray-50 rounded-xl px-4 py-3">
-                <FaCalendarAlt
-                  size={12}
-                  className="text-green-500 shrink-0"
-                />
+                <FaCalendarAlt size={12} className="text-green-500 shrink-0" />
                 <div>
                   <p className="text-[10px] text-gray-400 font-semibold">
                     Joined
@@ -246,7 +229,6 @@ export default function SingleCoursePage() {
             </div>
           </div>
         )}
-
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="font-extrabold text-gray-900 mb-5 flex items-center gap-2">
@@ -305,6 +287,54 @@ export default function SingleCoursePage() {
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mt-6">
+          <h2 className="font-extrabold text-gray-900 mb-5 flex items-center gap-2">
+            <span className="w-1 h-5 bg-green-500 rounded-full" />
+            Course Lessons
+          </h2>
+
+          {course?.lessons?.length === 0 ? (
+            <p className="text-gray-500 text-sm">No lessons uploaded yet.</p>
+          ) : (
+            <div className="space-y-4">
+              {course?.lessons?.map((lesson, index) => (
+                <div
+                  key={lesson._id}
+                  className="flex items-center justify-between bg-gray-50 rounded-xl p-4 border border-gray-100"
+                >
+                  <div className="flex items-center gap-4">
+                    {/* Lesson Number */}
+                    <div className="w-9 h-9 rounded-lg bg-green-100 text-green-700 flex items-center justify-center font-semibold text-sm">
+                      {index + 1}
+                    </div>
+
+                    {/* Lesson Info */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-800">
+                        {lesson.title}
+                      </h4>
+
+                      <p className="text-xs text-gray-400">
+                        Duration: {lesson.duration} min
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Watch Button */}
+                  <a
+                    href={lesson.videoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs font-semibold px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                  >
+                    Watch
+                  </a>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

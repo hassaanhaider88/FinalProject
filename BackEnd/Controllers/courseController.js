@@ -2,7 +2,7 @@ import courseModel from "../Models/courseModel.js";
 
 const getAllCourses = async (req, res) => {
     try {
-        const courses = await courseModel.find();
+        const courses = await courseModel.find().populate("instructor", "name email role").sort({ createdAt: -1 });
         if (!courses) {
             return res.json({
                 success: false,
@@ -202,6 +202,49 @@ const sendInstructorsCourses = async (req, res) => {
     }
 };
 
+
+const addLesson = async (req, res) => {
+
+    const { courseId } = req.params;
+    if (!courseId) {
+        return res.json({
+            success: false,
+            message: "Invalid Course Id",
+        });
+    }
+    const { title, videoUrl, duration } = req.body;
+    if (!title || !videoUrl || !duration) {
+        return res.json({
+            success: false,
+            message: "All fields required",
+        });
+    }
+
+
+    const course = await courseModel.findById(courseId).populate("instructor", "name email role");
+    if (!course) {
+        return res.json({
+            success: false,
+            message: "Course not found",
+        });
+    }
+
+
+    course.lessons.push({
+        title,
+        videoUrl,
+        duration
+    });
+
+    await course.save();
+
+    res.json({
+        success: true,
+        message: "Lesson added",
+        data: course
+    });
+}
+
 export {
     getAllCourses,
     getSingleCourse,
@@ -209,4 +252,5 @@ export {
     updateCourse,
     deleteCourse,
     sendInstructorsCourses,
+    addLesson
 };

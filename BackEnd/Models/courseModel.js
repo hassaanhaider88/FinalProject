@@ -1,30 +1,44 @@
-import mongoose, { Schema, model } from "mongoose"
+import mongoose, { Schema, model } from "mongoose";
+
+const lessonSchema = new Schema({
+    title: {
+        type: String,
+        required: true
+    },
+    videoUrl: {
+        type: String,
+        required: true
+    },
+    duration: {
+        type: Number
+    }
+}, { timestamps: true });
 
 const courseSchema = new Schema({
     title: {
         type: String,
-        require: true
+        required: true
     },
     description: {
         type: String,
-        require: true
+        required: true
     },
     instructor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true,
+        required: true
     },
     category: {
         type: String,
-        require: true
+        required: true
     },
     price: {
         type: Number,
-        require: true
-    }
-}, {
-    timestamps: true
-})
+        required: true
+    },
+
+    lessons: [lessonSchema]   
+}, { timestamps: true });
 
 const courseModel = model("Course", courseSchema);
 
