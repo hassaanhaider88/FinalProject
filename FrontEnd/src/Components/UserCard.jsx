@@ -1,3 +1,4 @@
+import { GrShieldSecurity } from "react-icons/gr";
 /* eslint-disable react-hooks/set-state-in-effect */
 import { FiLogOut } from "react-icons/fi";
 import { RiDashboardLine } from "react-icons/ri";
@@ -12,19 +13,24 @@ import { UserContext } from "../Store/UserStore";
 
 const UserCard = () => {
   const [showProfileCard, setShowProfileCard] = useState(false);
-  const { setUserData } = useContext(UserContext);
+  const { UserData, setUserData } = useContext(UserContext);
 
   const items = [
+    { name: UserData?.name, icon: <FiUser />, redirectUri: "" },
+    { name: UserData?.role, icon: <GrShieldSecurity />, redirectUri: "" },
     { name: "DashBoard", icon: <RiDashboardLine />, redirectUri: "/dashboard" },
+
     { name: "Log Out", icon: <FiLogOut />, redirectUri: "" },
   ];
 
   const navigate = useNavigate();
 
   const handleUserLogOutClick = async () => {
-    setUserData({});
-    localStorage.removeItem("LMSUser");
-    alert("log Out successfully");
+    if (confirm("Are you sure you want to log out?")) {
+      setUserData({});
+      localStorage.removeItem("LMSUser");
+      alert("log Out successfully");
+    }
   };
 
   useEffect(() => {
