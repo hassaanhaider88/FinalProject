@@ -1,10 +1,7 @@
+import { IoMdShareAlt } from "react-icons/io";
 /* eslint-disable react-hooks/immutability */
 import { useState, useEffect, useContext } from "react";
 import {
-  FaUsers,
-  FaBookOpen,
-  FaDollarSign,
-  FaChartBar,
   FaTrash,
   FaEdit,
   FaSearch,
@@ -14,9 +11,10 @@ import {
   FaTimes,
   FaExclamationTriangle,
 } from "react-icons/fa";
-import { MdOutlineOndemandVideo } from "react-icons/md";
+
 import BackEnd_URI from "../Utils/BackEnd_URI";
 import { CourseContext } from "../Store/CourseStore";
+import { useNavigate } from "react-router-dom";
 
 const ROLES = ["student", "instructor", "admin"];
 const CATEGORIES = [
@@ -62,6 +60,7 @@ function authHeader() {
 }
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const { AllCourses } = useContext(CourseContext);
   const [activeTab, setActiveTab] = useState("analytics");
   const [analytics, setAnalytics] = useState(null);
@@ -152,10 +151,13 @@ export default function AdminDashboard() {
   async function handleDeleteUser() {
     setBtnLoading(true);
     try {
-      const res = await fetch(`${BackEnd_URI}/api/admin/users/${deleteModal.item._id}`, {
-        method: "DELETE",
-        headers: authHeader(),
-      });
+      const res = await fetch(
+        `${BackEnd_URI}/api/admin/users/${deleteModal.item._id}`,
+        {
+          method: "DELETE",
+          headers: authHeader(),
+        },
+      );
       const data = await res.json();
       if (data.success)
         setUsers((prev) => prev.filter((u) => u._id !== deleteModal.item._id));
@@ -174,11 +176,14 @@ export default function AdminDashboard() {
   async function handleUpdateRole() {
     setBtnLoading(true);
     try {
-      const res = await fetch(`${BackEnd_URI}/api/admin/users/${roleModal._id}`, {
-        method: "PUT",
-        headers: authHeader(),
-        body: JSON.stringify({ role: selectedRole }),
-      });
+      const res = await fetch(
+        `${BackEnd_URI}/api/admin/users/${roleModal._id}`,
+        {
+          method: "PUT",
+          headers: authHeader(),
+          body: JSON.stringify({ role: selectedRole }),
+        },
+      );
       const data = await res.json();
       if (data.success)
         setUsers((prev) =>
@@ -232,11 +237,14 @@ export default function AdminDashboard() {
   async function handleUpdateCourse() {
     setBtnLoading(true);
     try {
-      const res = await fetch(`${BackEnd_URI}/api/admin/courses/${editModal._id}`, {
-        method: "PUT",
-        headers: authHeader(),
-        body: JSON.stringify(editForm),
-      });
+      const res = await fetch(
+        `${BackEnd_URI}/api/admin/courses/${editModal._id}`,
+        {
+          method: "PUT",
+          headers: authHeader(),
+          body: JSON.stringify(editForm),
+        },
+      );
       const data = await res.json();
       if (data.success)
         setCourses((prev) =>
@@ -319,21 +327,16 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {[
             {
-              icon: <FaUsers className="text-blue-500" size={19} />,
               label: "Total Users",
               value: analytics?.users?.total ?? "—",
               bg: "bg-blue-50",
             },
             {
-              icon: (
-                <MdOutlineOndemandVideo className="text-green-500" size={21} />
-              ),
               label: "Total Courses",
               value: analytics?.courses?.total ?? "—",
               bg: "bg-green-50",
             },
             {
-              icon: <FaDollarSign className="text-yellow-500" size={19} />,
               label: "Total Revenue",
               value: analytics?.courses?.totalRevenue
                 ? `Rs.${analytics.courses.totalRevenue.toLocaleString()}`
@@ -341,7 +344,6 @@ export default function AdminDashboard() {
               bg: "bg-yellow-50",
             },
             {
-              icon: <FaChartBar className="text-purple-500" size={17} />,
               label: "Instructors",
               value: analytics?.users?.instructors ?? "—",
               bg: "bg-purple-50",
@@ -351,11 +353,6 @@ export default function AdminDashboard() {
               key={i}
               className="bg-white rounded-xl border border-gray-200 p-5"
             >
-              <div
-                className={`w-10 h-10 ${card.bg} rounded-lg flex items-center justify-center mb-3`}
-              >
-                {card.icon}
-              </div>
               <p className="text-2xl font-bold text-gray-900">{card.value}</p>
               <p className="text-xs text-gray-500 mt-0.5">{card.label}</p>
             </div>
@@ -413,7 +410,7 @@ export default function AdminDashboard() {
                     Total Revenue
                   </p>
                   <p className="text-3xl font-bold text-green-700">
-                    ${analytics?.courses?.totalRevenue?.toLocaleString() ?? 0}
+                    Rs.{analytics?.courses?.totalRevenue?.toLocaleString() ?? 0}
                   </p>
                 </div>
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
@@ -617,6 +614,12 @@ export default function AdminDashboard() {
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-2">
                             <button
+                              onClick={() => navigate(`/course/${course._id}`)}
+                              className="flex items-center gap-1.5 text-xs bg-green-50 hover:bg-green-100 text-green-700 font-semibold px-3 py-1.5 rounded-lg"
+                            >
+                              <IoMdShareAlt size={11} /> View
+                            </button>
+                            <button
                               onClick={() => openEditModal(course)}
                               className="flex items-center gap-1.5 text-xs bg-green-50 hover:bg-green-100 text-green-700 font-semibold px-3 py-1.5 rounded-lg"
                             >
@@ -753,7 +756,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-    
       {editModal && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-4 overflow-y-auto py-6">
           <div className="bg-white rounded-xl w-full max-w-md shadow-xl">
