@@ -118,14 +118,14 @@ const SingleCourse = ({ course, activeCategory = "All" }) => {
         </div>
 
         <Link to={`/course/${course._id}`}>
-          <button className="py-2 px-7 flex w-full bg-[#d8cccc] text-black font-semibold rounded-3xl justify-center items-center gap-4 mb-5 mt-3">
+          <button className="py-2 px-7 flex w-full bg-[#d8cccc] text-black font-semibold rounded-3xl justify-center items-center gap-4 mb-2 mt-3">
             Check Course Details <IoIosShareAlt size={17} />
           </button>
         </Link>
 
         {!UserData?.name && (
           <Link to="/login">
-            <button className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded-3xl text-sm transition-colors shadow-lg shadow-green-200">
+            <button className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded-3xl text-sm transition-colors shadow-lg shadow-green-200">
               Login First To Enroll
             </button>
           </Link>
@@ -134,7 +134,7 @@ const SingleCourse = ({ course, activeCategory = "All" }) => {
         {UserData?.name && UserData?.role !== "student" && (
           <button
             disabled
-            className="w-full mt-4 bg-gray-100 text-gray-400 font-bold px-8 py-3 rounded-xl text-sm cursor-not-allowed"
+            className="w-full mt-2 bg-gray-100 text-gray-400 font-bold px-8 py-3 rounded-xl text-sm cursor-not-allowed"
           >
             Only Students Can Enroll
           </button>
