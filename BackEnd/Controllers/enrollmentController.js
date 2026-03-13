@@ -1,7 +1,7 @@
 import enrollmentModel from "../Models/enrollmentModel.js";
 import courseModel from "../Models/courseModel.js";
 
-// ── POST /api/student/enroll ─────────────────────────────
+
 const enrollCourse = async (req, res) => {
   try {
     const { courseId } = req.body;
@@ -34,7 +34,7 @@ const enrollCourse = async (req, res) => {
   }
 };
 
-// ── GET /api/student/my-courses ──────────────────────────
+
 const getMyCourses = async (req, res) => {
   try {
     const enrollments = await enrollmentModel
@@ -48,9 +48,7 @@ const getMyCourses = async (req, res) => {
   }
 };
 
-// ── PUT /api/student/lesson-complete/:enrollmentId ───────
-// body: { lessonId }
-// Marks one lesson as done, recalculates overall progress
+
 const markLessonComplete = async (req, res) => {
   try {
     const { enrollmentId } = req.params;

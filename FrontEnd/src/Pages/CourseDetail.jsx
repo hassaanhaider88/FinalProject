@@ -1,18 +1,20 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState, useContext } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   FaArrowLeft,
   FaDollarSign,
   FaCalendarAlt,
-  FaUser,
   FaLayerGroup,
   FaSpinner,
   FaExclamationTriangle,
   FaClock,
-  FaIdBadge,
   FaEnvelope,
   FaShieldAlt,
+  FaPlayCircle,
+  FaCheckCircle,
+  FaLock,
 } from "react-icons/fa";
+import { UserContext } from "../Store/UserStore";
 import BackEnd_URI from "../Utils/BackEnd_URI";
 
 const CATEGORY_COLORS = {
@@ -34,13 +36,25 @@ function formatDate(iso) {
   });
 }
 
+function getYoutubeId(url) {
+  if (!url) return null;
+  const match = url.match(/(?:v=|youtu\.be\/)([^&?/]+)/);
+  return match ? match[1] : null;
+}
+
 export default function SingleCoursePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { UserData } = useContext(UserContext);
 
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [checkingEnroll, setCheckingEnroll] = useState(false);
+  const [enrollLoading, setEnrollLoading] = useState(false);
+  const [enrollMsg, setEnrollMsg] = useState(null);
 
   useEffect(() => {
     if (!id) return;
@@ -50,13 +64,11 @@ export default function SingleCoursePage() {
       try {
         const res = await fetch(`${BackEnd_URI}/api/course/${id}`);
         const data = await res.json();
-        if (data.success) {
-          setCourse(data.data);
-        } else {
-          setError(data.message || "Course not found.");
-        }
-      } catch (err) {
-        setError("Unable to connect to the server. Please try again.", err);
+        if (data.success) setCourse(data.data);
+        else setError(data.message || "Course not found.");
+      } catch (error) {
+        console.log(error);
+        setError("Unable to connect to the server. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -64,7 +76,122 @@ export default function SingleCoursePage() {
     fetchCourse();
   }, [id]);
 
-  /* ── Loading ──────────────────────────────────────────── */
+  useEffect(() => {
+    if (!UserData?.name || !id) return;
+    const checkEnrollment = async () => {
+      setCheckingEnroll(true);
+      try {
+        const res = await fetch(`${BackEnd_URI}/api/student/my-courses`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("LMSUser")}`,
+          },
+        });
+        const data = await res.json();
+        if (data.success) {
+          setIsEnrolled(data.data.some((e) => e.course?._id === id));
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setCheckingEnroll(false);
+      }
+    };
+    checkEnrollment();
+  }, [UserData, id]);
+
+  async function handleEnroll() {
+    setEnrollLoading(true);
+    setEnrollMsg(null);
+    try {
+      const res = await fetch(`${BackEnd_URI}/api/student/enroll`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("LMSUser")}`,
+        },
+        body: JSON.stringify({ courseId: id }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsEnrolled(true);
+        setEnrollMsg({ text: "You are now enrolled! 🎉", type: "success" });
+      } else {
+        setEnrollMsg({
+          text: data.message || "Enrollment failed.",
+          type: "error",
+        });
+      }
+    } catch (error) {
+      setEnrollMsg({ text: "Network error. Please try again.", type: "error" });
+      console.log(error);
+    } finally {
+      setEnrollLoading(false);
+    }
+  }
+
+  function EnrollButton({ fullWidth = false }) {
+    const w = fullWidth ? "w-full" : "w-full sm:w-auto";
+
+    if (!UserData?.name) {
+      return (
+        <Link to="/login" className={w}>
+          <button
+            className={`${w} bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded-xl text-sm transition-colors shadow-lg shadow-green-200`}
+          >
+            Login to Enroll
+          </button>
+        </Link>
+      );
+    }
+    if (UserData?.role !== "student") {
+      return (
+        <button
+          className={`${w} bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded-xl text-sm transition-colors shadow-lg shadow-green-200`}
+        >
+          Admin Or Instructor No Allowed
+        </button>
+      );
+    }
+
+    if (checkingEnroll) {
+      return (
+        <button
+          disabled
+          className={`${w} bg-gray-100 text-gray-400 font-bold px-8 py-3 rounded-xl text-sm flex items-center justify-center gap-2 cursor-not-allowed`}
+        >
+          <FaSpinner className="animate-spin" size={13} /> Checking...
+        </button>
+      );
+    }
+
+    if (isEnrolled) {
+      return (
+        <button
+          disabled
+          className={`${w} bg-gray-100 text-gray-500 font-bold px-8 py-3 rounded-xl text-sm flex items-center justify-center gap-2 cursor-not-allowed`}
+        >
+          <FaCheckCircle className="text-green-500" size={14} /> Enrolled
+        </button>
+      );
+    }
+
+    return (
+      <button
+        onClick={handleEnroll}
+        disabled={enrollLoading}
+        className={`${w} bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded-xl text-sm transition-colors shadow-lg shadow-green-200 flex items-center justify-center gap-2 disabled:opacity-70`}
+      >
+        {enrollLoading ? (
+          <>
+            <FaSpinner className="animate-spin" size={13} /> Enrolling...
+          </>
+        ) : (
+          "Enroll Now"
+        )}
+      </button>
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -79,7 +206,6 @@ export default function SingleCoursePage() {
     );
   }
 
-  /* ── Error ────────────────────────────────────────────── */
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -125,8 +251,7 @@ export default function SingleCoursePage() {
           <span
             className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border mb-4 ${catStyle}`}
           >
-            <FaLayerGroup size={10} />
-            {course.category}
+            <FaLayerGroup size={10} /> {course.category}
           </span>
 
           <h1 className="text-2xl md:text-4xl font-extrabold leading-tight mb-3">
@@ -155,7 +280,7 @@ export default function SingleCoursePage() {
             <span
               className={`text-3xl font-extrabold ${isFree ? "text-green-600" : "text-gray-900"}`}
             >
-              {isFree ? "Free" : `$${course.price}`}
+              {isFree ? "Free" : `Rs.${course.price}`}
             </span>
             {!isFree && (
               <span className="text-xs text-gray-400 ml-2">
@@ -163,26 +288,136 @@ export default function SingleCoursePage() {
               </span>
             )}
           </div>
-          <button className="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded-xl text-sm transition-colors shadow-lg shadow-green-200 w-full sm:w-auto">
-            Enroll Now
-          </button>
+          <div className="flex flex-col gap-1.5 w-full sm:w-auto">
+            <EnrollButton />
+            {enrollMsg && (
+              <p
+                className={`text-xs font-semibold text-center ${enrollMsg.type === "success" ? "text-green-600" : "text-red-500"}`}
+              >
+                {enrollMsg.text}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="font-extrabold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-1 h-5 bg-green-500 rounded-full" />
-            Description
+            <span className="w-1 h-5 bg-green-500 rounded-full" /> Description
           </h2>
           <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line wrap-break-word">
             {course.description}
           </p>
         </div>
 
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <h2 className="font-extrabold text-gray-900 mb-5 flex items-center gap-2">
+            <span className="w-1 h-5 bg-green-500 rounded-full" /> Course
+            Lessons
+            <span className="text-xs bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full ml-1">
+              {course?.lessons?.length || 0}
+            </span>
+          </h2>
+
+          {!course?.lessons?.length ? (
+            <p className="text-sm text-gray-400">No lessons uploaded yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {course.lessons.map((lesson, index) => {
+                const videoId = getYoutubeId(lesson.videoUrl);
+                const thumbnail = videoId
+                  ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+                  : null;
+
+                const canWatch = isEnrolled || index === 0;
+
+                return (
+                  <div
+                    key={lesson._id}
+                    className="border border-gray-100 rounded-xl overflow-hidden hover:border-green-200 transition-colors"
+                  >
+                    <div className="flex items-stretch">
+                      <div className="relative shrink-0 w-32 sm:w-40">
+                        {thumbnail ? (
+                          <img
+                            src={thumbnail}
+                            alt={lesson.title}
+                            className="w-full h-full object-cover"
+                            style={{ minHeight: "72px" }}
+                          />
+                        ) : (
+                          <div className="w-full h-full min-h-18 bg-gray-100 flex items-center justify-center">
+                            <FaPlayCircle className="text-gray-300" size={22} />
+                          </div>
+                        )}
+
+                        {!canWatch && (
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <FaLock className="text-white" size={15} />
+                          </div>
+                        )}
+
+                        {index === 0 && !isEnrolled && (
+                          <span className="absolute top-1.5 left-1.5 text-[9px] font-extrabold bg-green-500 text-white px-1.5 py-0.5 rounded">
+                            FREE
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex-1 p-3 flex flex-col justify-between">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="w-5 h-5 bg-green-100 text-green-700 rounded text-xs font-bold flex items-center justify-center shrink-0">
+                                {index + 1}
+                              </span>
+                              <h4 className="text-sm font-semibold text-gray-800 line-clamp-1">
+                                {lesson.title}
+                              </h4>
+                            </div>
+                            <p className="text-xs text-gray-400 ml-7 flex items-center gap-1">
+                              <FaClock size={9} /> {lesson.duration} min
+                            </p>
+                          </div>
+
+                          {canWatch ? (
+                            <a
+                              href={lesson.videoUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                            >
+                              <FaPlayCircle size={10} /> Watch
+                            </a>
+                          ) : (
+                            <span className="shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-1.5 bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed">
+                              <FaLock size={10} /> Locked
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {!isEnrolled &&
+            UserData?.name &&
+            (course?.lessons?.length || 0) > 1 && (
+              <div className="mt-5 p-4 bg-green-50 border border-green-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+                <p className="text-sm text-green-800 font-semibold">
+                  🔒 Enroll to unlock all {course.lessons.length} lessons
+                </p>
+                <EnrollButton />
+              </div>
+            )}
+        </div>
+
         {course.instructor && typeof course.instructor === "object" && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="font-extrabold text-gray-900 mb-5 flex items-center gap-2">
-              <span className="w-1 h-5 bg-green-500 rounded-full" />
-              Instructor
+              <span className="w-1 h-5 bg-green-500 rounded-full" /> Instructor
             </h2>
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center shrink-0 ring-4 ring-green-50">
@@ -232,8 +467,8 @@ export default function SingleCoursePage() {
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="font-extrabold text-gray-900 mb-5 flex items-center gap-2">
-            <span className="w-1 h-5 bg-green-500 rounded-full" />
-            Course Details
+            <span className="w-1 h-5 bg-green-500 rounded-full" /> Course
+            Details
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
@@ -261,7 +496,7 @@ export default function SingleCoursePage() {
             ].map((item, i) => (
               <div
                 key={i}
-                className={`flex items-start gap-3 bg-gray-50 rounded-xl p-4 ${item.full ? "sm:col-span-2" : ""}`}
+                className="flex items-start gap-3 bg-gray-50 rounded-xl p-4"
               >
                 <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
                   {item.icon}
@@ -277,9 +512,7 @@ export default function SingleCoursePage() {
                       {item.value}
                     </span>
                   ) : (
-                    <p
-                      className={`text-sm font-semibold text-gray-800 ${item.mono ? "font-mono text-xs break-all" : ""}`}
-                    >
+                    <p className="text-sm font-semibold text-gray-800">
                       {item.value}
                     </p>
                   )}
@@ -287,54 +520,6 @@ export default function SingleCoursePage() {
               </div>
             ))}
           </div>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mt-6">
-          <h2 className="font-extrabold text-gray-900 mb-5 flex items-center gap-2">
-            <span className="w-1 h-5 bg-green-500 rounded-full" />
-            Course Lessons
-          </h2>
-
-          {course?.lessons?.length === 0 ? (
-            <p className="text-gray-500 text-sm">No lessons uploaded yet.</p>
-          ) : (
-            <div className="space-y-4">
-              {course?.lessons?.map((lesson, index) => (
-                <div
-                  key={lesson._id}
-                  className="flex items-center justify-between bg-gray-50 rounded-xl p-4 border border-gray-100"
-                >
-                  <div className="flex items-center gap-4">
-                    {/* Lesson Number */}
-                    <div className="w-9 h-9 rounded-lg bg-green-100 text-green-700 flex items-center justify-center font-semibold text-sm">
-                      {index + 1}
-                    </div>
-
-                    {/* Lesson Info */}
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-800">
-                        {lesson.title}
-                      </h4>
-
-                      <p className="text-xs text-gray-400">
-                        Duration: {lesson.duration} min
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Watch Button */}
-                  <a
-                    href={lesson.videoUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs font-semibold px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                  >
-                    Watch
-                  </a>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </div>

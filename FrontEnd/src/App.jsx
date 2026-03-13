@@ -16,7 +16,7 @@ import { useContext } from "react";
 import { UserContext } from "./Store/UserStore";
 import { useEffect } from "react";
 import { getLocalStorageUser } from "./Utils/HandleUserAuth";
-import UserDashboard from "./Pages/UserDashboard";
+import StudentDashboard from "./Pages/StudentDashboard";
 import InstructorDashBoard from "./Pages/InstructorDashBoard";
 import AdminDashBoard from "./Pages/AdminDashBoard";
 import UploadLesson from "./Pages/UploadLesson";
@@ -76,7 +76,7 @@ const App = () => {
             !UserData?.name ? (
               <Home />
             ) : UserData.role === "student" ? (
-              <UserDashboard />
+              <StudentDashboard />
             ) : UserData.role === "instructor" ? (
               <InstructorDashBoard />
             ) : UserData.role === "admin" ? (

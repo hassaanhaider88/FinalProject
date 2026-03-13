@@ -1,25 +1,24 @@
 import express from "express";
-import dontenv from "dotenv"
+import dontenv from "dotenv";
 import cors from "cors";
 import requestLogger from "./middlewares/requestLogger.js";
-import ConnectToDB from "./config/connectDB.js"
+import ConnectToDB from "./config/connectDB.js";
 
 import userRoutes from "./Routes/userRoutes.js";
 import courseRoutes from "./Routes/courseRoutes.js";
 import adminRoutes from "./Routes/adminRoutes.js";
 import studentRoutes from "./Routes/studentRoutes.js";
 
-
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cors())
+app.use(cors());
 dontenv.config();
-app.use(requestLogger)
+app.use(requestLogger);
 
-ConnectToDB()
+ConnectToDB();
 
 const PORT = process.env.PORT || 8000;
 
@@ -27,7 +26,7 @@ const PORT = process.env.PORT || 8000;
 app.get("/", (req, res) => res.send("API Running"));
 
 // user auth related routes
-app.use("/api/auth", userRoutes)
+app.use("/api/auth", userRoutes);
 
 // course routes
 app.use("/api/course", courseRoutes);

@@ -10,4 +10,3 @@ router.put("/lesson-complete/:enrollmentId", AuthMiddleWare, markLessonComplete)
 
 export default router;
 
-// app.use("/api/student", studentRoutes);

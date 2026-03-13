@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef, useContext } from "react";
 import {
@@ -49,7 +48,6 @@ function formatDate(iso) {
   });
 }
 
-// seconds → "2m 30s"
 function formatTime(sec) {
   const m = Math.floor(sec / 60);
   const s = sec % 60;
@@ -57,27 +55,22 @@ function formatTime(sec) {
   return `${m}m ${s}s`;
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 export default function StudentDashboard() {
   const { AllCourses } = useContext(CourseContext);
-  console.log(AllCourses);
   const [activeTab, setActiveTab] = useState("my-courses");
   const [enrollments, setEnrollments] = useState([]);
-  const [allCourse, setAllCourse] = useState(AllCourses || []);
+  const [allCourse] = useState(AllCourses || []);
   const [pageLoading, setPageLoading] = useState(true);
   const [btnLoading, setBtnLoading] = useState(false);
   const [enrollingId, setEnrollingId] = useState(null);
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState(null);
 
-  // which courses are expanded to show lessons
   const [expandedCourses, setExpandedCourses] = useState({});
 
-  // activeLesson = { enrollmentId, lessonId, lessonTitle, totalSeconds, elapsedSeconds, canComplete }
   const [activeLesson, setActiveLesson] = useState(null);
   const timerRef = useRef(null);
 
-  // ── helpers ─────────────────────────────────
   function showToast(msg, type = "success") {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3500);
@@ -90,7 +83,6 @@ export default function StudentDashboard() {
     }));
   }
 
-  // ── fetch ────────────────────────────────────
   useEffect(() => {
     (async () => {
       setPageLoading(true);
@@ -110,7 +102,6 @@ export default function StudentDashboard() {
     }
   }
 
-  // ── enroll ───────────────────────────────────
   async function handleEnroll(courseId) {
     setEnrollingId(courseId);
     setBtnLoading(true);
@@ -147,11 +138,6 @@ export default function StudentDashboard() {
     setEnrollingId(null);
   }
 
-  // ════════════════════════════════════════════
-  //  LESSON WATCH FLOW
-  // ════════════════════════════════════════════
-
-  // Step 1 — user clicks "Watch" on a lesson
   function startWatchingLesson(enrollment, lesson) {
     if (!lesson.duration || lesson.duration <= 0) {
       showToast("This lesson has no duration set.", "error");
@@ -174,7 +160,6 @@ export default function StudentDashboard() {
     });
   }
 
-  // Step 2 — tick every second
   useEffect(() => {
     if (!activeLesson) return;
 
@@ -194,9 +179,8 @@ export default function StudentDashboard() {
     }, 1000);
 
     return () => clearInterval(timerRef.current);
-  }, [activeLesson?.lessonId]); // restart only when a NEW lesson starts
+  }, [activeLesson?.lessonId]);
 
-  // Step 3 — AUTO-SAVE when timer hits 100% (canComplete becomes true)
   useEffect(() => {
     if (activeLesson?.canComplete) {
       autoSaveLessonComplete();
@@ -254,14 +238,12 @@ export default function StudentDashboard() {
     setActiveLesson(null); // clear session AFTER saving
   }
 
-  // user stops mid-way (timer not done yet)
   function stopWatching() {
     clearInterval(timerRef.current);
     setActiveLesson(null);
     showToast("Session stopped. Lesson not counted.", "warning");
   }
 
-  // ── derived data ─────────────────────────────
   const enrolledIds = new Set(enrollments.map((e) => e.course?._id));
 
   const browseCourses = allCourse
@@ -276,13 +258,7 @@ export default function StudentDashboard() {
   const inProgress = enrollments.filter(
     (e) => e.progress > 0 && e.progress < 100,
   ).length;
-  const avgProgress = enrollments.length
-    ? Math.round(
-        enrollments.reduce((s, e) => s + e.progress, 0) / enrollments.length,
-      )
-    : 0;
 
-  // ── loading ──────────────────────────────────
   if (pageLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -291,10 +267,8 @@ export default function StudentDashboard() {
     );
   }
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
-      {/* Toast */}
       {toast && (
         <div
           className={`fixed top-4 right-4 z-50 flex items-center gap-3 text-white text-sm font-medium px-4 py-3 rounded-lg shadow-lg
@@ -307,32 +281,16 @@ export default function StudentDashboard() {
         </div>
       )}
 
-      {/* Navbar */}
-      <nav className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-xl font-bold text-gray-800">
-            Edu<span className="text-green-600">Le</span>
-          </span>
-          <span className="text-xs bg-green-100 text-green-600 font-bold px-2 py-0.5 rounded">
-            Student
-          </span>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <FaGraduationCap className="text-green-500" size={14} />
-          Student Portal
-        </div>
-      </nav>
-
       <div className="max-w-5xl mx-auto px-4 py-8">
-        {/* Heading */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">My Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Student Dashboard
+          </h1>
           <p className="text-sm text-gray-500 mt-1">
             Watch lessons, track your progress, and discover new courses.
           </p>
         </div>
 
-        {/* ── ACTIVE LESSON TIMER BANNER ──────── */}
         {activeLesson && (
           <div
             className={`mb-5 rounded-xl border-2 p-4 ${activeLesson.canComplete ? "bg-green-50 border-green-400" : "bg-blue-50 border-blue-300"}`}
@@ -359,22 +317,20 @@ export default function StudentDashboard() {
                       }}
                     />
                   </div>
-                  <span className="text-xs font-bold text-gray-600 flex-shrink-0">
+                  <span className="text-xs font-bold text-gray-600 shrink-0">
                     {formatTime(activeLesson.elapsedSeconds)} /{" "}
                     {formatTime(activeLesson.totalSeconds)}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 flex-shrink-0">
-                {/* auto-saving spinner shown when timer done */}
+              <div className="flex items-center gap-2 shrink-0">
                 {activeLesson.canComplete ? (
                   <span className="flex items-center gap-2 text-sm text-green-700 font-semibold bg-green-100 px-4 py-2.5 rounded-lg">
                     <FaSpinner className="animate-spin" size={13} />
                     Saving...
                   </span>
                 ) : (
-                  // Stop only allowed BEFORE timer finishes
                   <button
                     onClick={stopWatching}
                     className="flex items-center gap-1.5 bg-white border border-red-200 text-red-500 hover:bg-red-50 font-semibold text-sm px-3 py-2.5 rounded-lg"
@@ -387,50 +343,34 @@ export default function StudentDashboard() {
           </div>
         )}
 
-        {/* Stat cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
           {[
             {
-              icon: <FaBookOpen className="text-blue-500" size={18} />,
-              label: "Enrolled",
+              label: "Enrolled Courses",
               value: enrollments.length,
               bg: "bg-blue-50",
             },
             {
-              icon: <FaCheckCircle className="text-green-500" size={18} />,
-              label: "Completed",
+              label: "Completed Courses",
               value: completed,
               bg: "bg-green-50",
             },
             {
-              icon: <FaPlayCircle className="text-orange-500" size={18} />,
-              label: "In Progress",
+              label: "In Progress Courses",
               value: inProgress,
               bg: "bg-orange-50",
-            },
-            {
-              icon: <FaChartBar className="text-purple-500" size={17} />,
-              label: "Avg Progress",
-              value: `${avgProgress}%`,
-              bg: "bg-purple-50",
             },
           ].map((card, i) => (
             <div
               key={i}
               className="bg-white rounded-xl border border-gray-200 p-5"
             >
-              <div
-                className={`w-10 h-10 ${card.bg} rounded-lg flex items-center justify-center mb-3`}
-              >
-                {card.icon}
-              </div>
               <p className="text-2xl font-bold text-gray-900">{card.value}</p>
               <p className="text-xs text-gray-500 mt-0.5">{card.label}</p>
             </div>
           ))}
         </div>
 
-        {/* Tabs */}
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="flex border-b border-gray-200">
             {[
@@ -440,7 +380,7 @@ export default function StudentDashboard() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-shrink-0 px-6 py-3.5 text-sm font-semibold border-b-2 transition-colors
+                className={`shrink-0 px-6 py-3.5 text-sm font-semibold border-b-2 transition-colors
                   ${activeTab === tab.id ? "border-green-600 text-green-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
               >
                 {tab.label}
@@ -448,7 +388,6 @@ export default function StudentDashboard() {
             ))}
           </div>
 
-          {/* ══ MY COURSES ══════════════════════ */}
           {activeTab === "my-courses" && (
             <div className="p-5">
               {enrollments.length === 0 ? (
@@ -482,14 +421,12 @@ export default function StudentDashboard() {
                     const isDone = enrollment.progress === 100;
                     const isExpanded = !!expandedCourses[enrollment._id];
 
-                    // helper: is a lesson already completed?
                     function isLessonDone(lessonId) {
                       return completedLessons.some(
                         (id) => id?.toString() === lessonId?.toString(),
                       );
                     }
 
-                    // is a lesson currently being watched?
                     function isLessonActive(lessonId) {
                       return (
                         activeLesson?.enrollmentId === enrollment._id &&
@@ -503,14 +440,13 @@ export default function StudentDashboard() {
                         key={enrollment._id}
                         className="border border-gray-200 rounded-xl overflow-hidden"
                       >
-                        {/* ── Course Header ── */}
                         <div
                           className={`p-5 cursor-pointer select-none hover:bg-gray-50 transition-colors ${isDone ? "bg-green-50/40" : ""}`}
                           onClick={() => toggleCourse(enrollment._id)}
                         >
                           <div className="flex items-start gap-3">
                             <div
-                              className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isDone ? "bg-green-100" : "bg-gray-100"}`}
+                              className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isDone ? "bg-green-100" : "bg-gray-100"}`}
                             >
                               <MdOutlineOndemandVideo
                                 size={19}
@@ -548,7 +484,6 @@ export default function StudentDashboard() {
                                 </span>
                               </div>
 
-                              {/* Overall progress bar */}
                               <div className="flex items-center gap-3">
                                 <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
                                   <div
@@ -562,16 +497,14 @@ export default function StudentDashboard() {
                               </div>
                             </div>
 
-                            {/* expand arrow */}
                             <span
-                              className={`text-gray-400 text-sm transition-transform flex-shrink-0 mt-1 ${isExpanded ? "rotate-180" : ""}`}
+                              className={`text-gray-400 text-sm transition-transform shrink-0 mt-1 ${isExpanded ? "rotate-180" : ""}`}
                             >
                               ▼
                             </span>
                           </div>
                         </div>
 
-                        {/* ── Lessons List (expanded) ── */}
                         {isExpanded && (
                           <div className="border-t border-gray-100">
                             {lessons.length === 0 ? (
@@ -583,7 +516,7 @@ export default function StudentDashboard() {
                                 const done = isLessonDone(lesson._id);
                                 const active = isLessonActive(lesson._id);
                                 const blocked =
-                                  !done && !!activeLesson && !active; // another lesson is being watched
+                                  !done && !!activeLesson && !active;
 
                                 return (
                                   <div
@@ -591,9 +524,8 @@ export default function StudentDashboard() {
                                     className={`flex items-center gap-4 px-5 py-3.5 border-b border-gray-50 last:border-0
                                       ${active ? "bg-blue-50" : done ? "bg-green-50/30" : "hover:bg-gray-50"}`}
                                   >
-                                    {/* lesson number / check */}
                                     <div
-                                      className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-xs
+                                      className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-bold text-xs
                                       ${done ? "bg-green-500 text-white" : active ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-500"}`}
                                     >
                                       {done ? (
@@ -603,7 +535,6 @@ export default function StudentDashboard() {
                                       )}
                                     </div>
 
-                                    {/* title + meta */}
                                     <div className="flex-1 min-w-0">
                                       <p
                                         className={`text-sm font-medium ${done ? "text-gray-400 line-through" : "text-gray-800"}`}
@@ -629,15 +560,13 @@ export default function StudentDashboard() {
                                       </p>
                                     </div>
 
-                                    {/* action */}
-                                    <div className="flex-shrink-0">
+                                    <div className="shrink-0">
                                       {done ? (
                                         <span className="text-xs text-green-600 font-semibold flex items-center gap-1">
                                           <FaCheckCircle size={11} /> Done
                                         </span>
                                       ) : active &&
                                         activeLesson?.canComplete ? (
-                                        // timer done — auto-saving to DB
                                         <span className="text-xs text-green-600 font-semibold bg-green-100 px-2 py-1 rounded-lg flex items-center gap-1">
                                           <FaSpinner
                                             className="animate-spin"
@@ -646,7 +575,6 @@ export default function StudentDashboard() {
                                           Saving...
                                         </span>
                                       ) : active ? (
-                                        // timer still running
                                         <span className="text-xs text-blue-500 font-semibold bg-blue-100 px-2 py-1 rounded-lg animate-pulse">
                                           Watching...
                                         </span>
@@ -685,7 +613,6 @@ export default function StudentDashboard() {
             </div>
           )}
 
-          {/* ══ BROWSE TAB ══════════════════════ */}
           {activeTab === "browse" && (
             <div>
               <div className="px-5 py-4 border-b border-gray-100">
@@ -727,7 +654,7 @@ export default function StudentDashboard() {
                           className="border border-gray-200 rounded-xl p-5 hover:border-green-200 transition-colors"
                         >
                           <div className="flex items-start gap-3 mb-3">
-                            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
                               <MdOutlineOndemandVideo
                                 size={18}
                                 className="text-green-600"
