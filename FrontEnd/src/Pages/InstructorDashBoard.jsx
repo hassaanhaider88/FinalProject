@@ -22,15 +22,7 @@ import { MdOutlineOndemandVideo } from "react-icons/md";
 import BackEnd_URI from "../Utils/BackEnd_URI";
 import { useNavigate } from "react-router-dom";
 
-const CATEGORIES = [
-  "Data Science",
-  "Design",
-  "Development",
-  "Business",
-  "Marketing",
-  "Finance",
-  "Science",
-];
+import CATEGORIES from "../Utils/AllCategories";
 
 function Toast({ toast, onClose }) {
   useEffect(() => {

@@ -15,17 +15,9 @@ import {
 import BackEnd_URI from "../Utils/BackEnd_URI";
 import { CourseContext } from "../Store/CourseStore";
 import { useNavigate } from "react-router-dom";
+import CATEGORIES from "../Utils/AllCategories";
 
 const ROLES = ["student", "instructor", "admin"];
-const CATEGORIES = [
-  "Data Science",
-  "Design",
-  "Development",
-  "Business",
-  "Marketing",
-  "Finance",
-  "Science",
-];
 
 const roleBadge = {
   admin: "bg-red-100 text-red-700",

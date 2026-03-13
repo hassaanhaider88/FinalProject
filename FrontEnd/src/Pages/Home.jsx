@@ -11,15 +11,8 @@ import {
 import { Link } from "react-router-dom";
 import SingleCourse from "../Components/SingleCourse";
 import { CourseContext } from "../Store/CourseStore";
+import CATEGORIES from "../Utils/AllCategories";
 
-const categories = [
-  "All",
-  "UI/UX Design",
-  "Development",
-  "Data Science",
-  "Business",
-  "Financial",
-];
 
 export default function EduLe() {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -137,7 +130,7 @@ export default function EduLe() {
             <button className="text-gray-400 hover:text-green-600 p-1.5 shrink-0 transition-colors">
               <FaChevronLeft size={14} />
             </button>
-            {categories.map((cat) => (
+            {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
