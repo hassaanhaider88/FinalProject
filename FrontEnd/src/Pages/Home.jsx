@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/purity */
 import { BiLoader } from "react-icons/bi";
 import { useContext, useState } from "react";
 import {
@@ -162,13 +163,15 @@ export default function EduLe() {
           )}
 
           <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {AllCourses?.map((course) => (
-              <SingleCourse
-                key={course.id}
-                course={course}
-                activeCategory={activeCategory}
-              />
-            ))}
+            {AllCourses?.sort(() => Math.random() - 0.5)
+              .slice(0, 6)
+              .map((course) => (
+                <SingleCourse
+                  key={course.id}
+                  course={course}
+                  activeCategory={activeCategory}
+                />
+              ))}
           </div>
 
           <div className="flex justify-center mt-10">
