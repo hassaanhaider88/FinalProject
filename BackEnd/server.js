@@ -23,7 +23,10 @@ ConnectToDB();
 const PORT = process.env.PORT || 8000;
 
 // testing route
-app.get("/", (req, res) => res.send("API Running"));
+app.get("/", (req, res) => res.json({
+    success: true,
+    message: "LMS By Hassaan API working Well."
+}));
 
 // user auth related routes
 app.use("/api/auth", userRoutes);
