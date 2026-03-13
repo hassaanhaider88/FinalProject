@@ -53,9 +53,16 @@ const updateUserRole = async (req, res) => {
         if (!id) {
             return res.json({ success: false, message: "Invalid Id" });
         }
+
         const { role } = req.body;
         if (!role) {
             return res.json({ success: false, message: "Invalid Role" });
+        }
+        if (!req.user.role === "admin") {
+            return res.json({
+                success: false,
+                message: "You are not authorized to access this route",
+            });
         }
         const allowedRoles = ["student", "instructor", "admin"];
         if (!allowedRoles.includes(role)) {
@@ -91,6 +98,12 @@ const deleteUser = async (req, res) => {
             return res.json({ success: false, message: "Invalid Id" });
         }
 
+        if (!req.user.role === "admin") {
+            return res.json({
+                success: false,
+                message: "You are not authorized to access this route",
+            });
+        }
         if (req.user._id.toString() === id) {
             return res.json({
                 success: false,
@@ -117,6 +130,12 @@ const deleteUser = async (req, res) => {
 
 const getAllCoursesAdmin = async (req, res) => {
     try {
+        if (!req.user.role === "admin") {
+            return res.json({
+                success: false,
+                message: "You are not authorized to access this route",
+            });
+        }
         const courses = await courseModel
             .find().populate("instructor", "-password").sort({ createdAt: -1 });
 
@@ -137,6 +156,12 @@ const deleteCourseAdmin = async (req, res) => {
         const { id } = req.params;
         if (!id) {
             return res.json({ success: false, message: "Invalid Id" });
+        }
+        if (!req.user.role === "admin") {
+            return res.json({
+                success: false,
+                message: "You are not authorized to access this route",
+            });
         }
         const course = await courseModel.findByIdAndDelete(id);
 
@@ -160,6 +185,12 @@ const updateCourseAdmin = async (req, res) => {
         const { id } = req.params;
         if (!id) {
             return res.json({ success: false, message: "Invalid Id" });
+        }
+        if (!req.user.role === "admin") {
+            return res.json({
+                success: false,
+                message: "You are not authorized to access this route",
+            });
         }
         const { title, description, category, price } = req.body;
 
@@ -198,7 +229,12 @@ const getAnalytics = async (req, res) => {
                 message: "No Data Found"
             })
         }
-
+        if (!req.user.role === "admin") {
+            return res.json({
+                success: false,
+                message: "You are not authorized to access this route",
+            });
+        }
         const totalUsers = users.length;
         const totalStudents = users.filter((u) => u.role === "student").length;
         const totalInstructors = users.filter(
