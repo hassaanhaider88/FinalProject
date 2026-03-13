@@ -1,4 +1,4 @@
-import userModel from "../Models/UserModel.js";
+import userModel from "../Models/userModel.js";
 import courseModel from "../Models/courseModel.js";
 
 const getAllUsers = async (req, res) => {
