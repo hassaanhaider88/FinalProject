@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../Store/UserStore";
 import { handleUserLogin } from "../Utils/HandleUserAuth";
+import { toast } from "react-toastify";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -30,12 +31,14 @@ const LoginPage = () => {
           createdCourses: result.data.createdCourses,
         });
         localStorage.setItem("LMSUser", result.token);
+        toast.success("Login Successful");
         navigate("/");
       } else {
-        alert(result.message);
+        toast.error(result.message);
       }
     } catch (error) {
       console.log(error);
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }

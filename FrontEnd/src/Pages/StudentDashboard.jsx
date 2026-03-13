@@ -19,6 +19,7 @@ import {
 import { MdOutlineOndemandVideo } from "react-icons/md";
 import BackEnd_URI from "../Utils/BackEnd_URI";
 import { CourseContext } from "../Store/CourseStore";
+import { toast } from "react-toastify";
 
 const BASE = `${BackEnd_URI}/api/student`;
 
@@ -64,17 +65,11 @@ export default function StudentDashboard() {
   const [btnLoading, setBtnLoading] = useState(false);
   const [enrollingId, setEnrollingId] = useState(null);
   const [search, setSearch] = useState("");
-  const [toast, setToast] = useState(null);
 
   const [expandedCourses, setExpandedCourses] = useState({});
 
   const [activeLesson, setActiveLesson] = useState(null);
   const timerRef = useRef(null);
-
-  function showToast(msg, type = "success") {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 3500);
-  }
 
   function toggleCourse(enrollmentId) {
     setExpandedCourses((prev) => ({
@@ -113,12 +108,12 @@ export default function StudentDashboard() {
       });
       const data = await res.json();
       if (data.success) {
-        showToast("Enrolled successfully! 🎉");
+        toast.success("Enrolled successfully! 🎉");
         await fetchMyEnrollments();
       } else {
-        showToast(data.message, "error");
+        toast.error(data.message, "error");
       }
-    } catch {
+    } catch (error) {
       const course = allCourse.find((c) => c._id === courseId);
       if (course) {
         setEnrollments((prev) => [
@@ -132,7 +127,7 @@ export default function StudentDashboard() {
           ...prev,
         ]);
       }
-      showToast("Enrolled! (demo mode)");
+      toast.error(error.message);
     }
     setBtnLoading(false);
     setEnrollingId(null);
@@ -140,7 +135,7 @@ export default function StudentDashboard() {
 
   function startWatchingLesson(enrollment, lesson) {
     if (!lesson.duration || lesson.duration <= 0) {
-      showToast("This lesson has no duration set.", "error");
+      toast.error("This lesson has no duration set.");
       return;
     }
 
@@ -213,11 +208,11 @@ export default function StudentDashboard() {
             };
           }),
         );
-        showToast("✅ Lesson completed!");
+        toast.success("✅ Lesson completed!");
       } else {
-        showToast(data.message, "error");
+        toast.error(data.message, "error");
       }
-    } catch {
+    } catch (error) {
       // demo mode: update locally
       setEnrollments((prev) =>
         prev.map((e) => {
@@ -231,7 +226,7 @@ export default function StudentDashboard() {
           };
         }),
       );
-      showToast("✅ Lesson completed! (demo)");
+      toast.success(error.message);
     }
 
     setBtnLoading(false);
@@ -241,7 +236,7 @@ export default function StudentDashboard() {
   function stopWatching() {
     clearInterval(timerRef.current);
     setActiveLesson(null);
-    showToast("Session stopped. Lesson not counted.", "warning");
+    toast.error("Session stopped. Lesson not counted.", "warning");
   }
 
   const enrolledIds = new Set(enrollments.map((e) => e.course?._id));
@@ -269,18 +264,6 @@ export default function StudentDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
-      {toast && (
-        <div
-          className={`fixed top-4 right-4 z-50 flex items-center gap-3 text-white text-sm font-medium px-4 py-3 rounded-lg shadow-lg
-          ${toast.type === "error" ? "bg-red-500" : toast.type === "warning" ? "bg-yellow-500" : "bg-green-600"}`}
-        >
-          {toast.msg}
-          <button onClick={() => setToast(null)}>
-            <FaTimes size={12} />
-          </button>
-        </div>
-      )}
-
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">

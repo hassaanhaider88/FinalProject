@@ -4,6 +4,7 @@ import { FaPlayCircle, FaCheckCircle, FaSpinner } from "react-icons/fa";
 import { UserContext } from "../Store/UserStore";
 import { Link } from "react-router-dom";
 import BackEnd_URI from "../Utils/BackEnd_URI";
+import { toast } from "react-toastify";
 
 const SingleCourse = ({ course, activeCategory = "All" }) => {
   const { UserData } = useContext(UserContext);
@@ -34,7 +35,7 @@ const SingleCourse = ({ course, activeCategory = "All" }) => {
         }
       } catch (error) {
         console.log(error);
-        alert("Network error. Please try again.");
+        toast.error("Network error. Please try again.");
       } finally {
         setCheckingEnroll(false);
       }
@@ -63,7 +64,7 @@ const SingleCourse = ({ course, activeCategory = "All" }) => {
       }
     } catch (error) {
       console.log(error);
-      alert("Network error. Please try again.");
+      toast.error(error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }

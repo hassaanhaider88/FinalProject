@@ -1,3 +1,4 @@
+import { BiLoader } from "react-icons/bi";
 import { useContext, useState } from "react";
 import {
   FaStar,
@@ -10,13 +11,13 @@ import {
 
 import { Link } from "react-router-dom";
 import SingleCourse from "../Components/SingleCourse";
+import Loading from "../Components/Loading";
 import { CourseContext } from "../Store/CourseStore";
 import CATEGORIES from "../Utils/AllCategories";
 
-
 export default function EduLe() {
   const [activeCategory, setActiveCategory] = useState("All");
-  const { AllCourses } = useContext(CourseContext);
+  const { AllCourses, CourseLoading, CourseError } = useContext(CourseContext);
   return (
     <div className="min-h-screen bg-white font-sans">
       <section className="bg-[#f0faf4] overflow-hidden">
@@ -148,7 +149,19 @@ export default function EduLe() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {CourseLoading && (
+            <div className="w-full my-10 gap-3 animate-bounce h-full flex justify-center items-center">
+              <Loading />
+            </div>
+          )}
+
+          {CourseError && (
+            <p className="text-center text-sm text-red-400">
+              Something Wents Wrong On Server...
+            </p>
+          )}
+
+          <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {AllCourses?.map((course) => (
               <SingleCourse
                 key={course.id}

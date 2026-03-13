@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { handleUserRegister } from "../Utils/HandleUserAuth";
 import { UserContext } from "../Store/UserStore";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -33,11 +34,13 @@ const RegisterPage = () => {
           createdCourses: result.data.createdCourses,
         });
         localStorage.setItem("LMSUser", result.token);
+        toast.success("Registration Successful");
         navigate("/");
       } else {
-        alert(result.message);
+        toast.error(result.message);
       }
     } catch (error) {
+      toast.error("Something went wrong");
       console.log(error);
     } finally {
       setLoading(false);

@@ -64,7 +64,11 @@ export const getLocalStorageUser = async (token) => {
             }
         });
         let data = await response.json();
-        return data;
+        if (data?.success) {
+            return data;
+        } else {
+            return null;
+        }
     } catch (error) {
         console.log(error);
         return null;

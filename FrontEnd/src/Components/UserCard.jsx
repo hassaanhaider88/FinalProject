@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import BackEnd_URI from "../Utils/BackEnd_URI";
 import { useContext } from "react";
 import { UserContext } from "../Store/UserStore";
+import { toast } from "react-toastify";
 
 const UserCard = () => {
   const [showProfileCard, setShowProfileCard] = useState(false);
@@ -29,7 +30,9 @@ const UserCard = () => {
     if (confirm("Are you sure you want to log out?")) {
       setUserData({});
       localStorage.removeItem("LMSUser");
-      alert("log Out successfully");
+      toast.success("log Out successfully");
+    }else{
+      toast.info("Nothing To Do")
     }
   };
 

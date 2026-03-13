@@ -7,7 +7,6 @@ import {
   FaSearch,
   FaSpinner,
   FaUserCog,
-  FaShieldAlt,
   FaTimes,
   FaExclamationTriangle,
 } from "react-icons/fa";
@@ -16,6 +15,8 @@ import BackEnd_URI from "../Utils/BackEnd_URI";
 import { CourseContext } from "../Store/CourseStore";
 import { useNavigate } from "react-router-dom";
 import CATEGORIES from "../Utils/AllCategories";
+import { toast } from "react-toastify";
+import Loading from "../Components/Loading";
 
 const ROLES = ["student", "instructor", "admin"];
 
@@ -64,8 +65,6 @@ export default function AdminDashboard() {
   const [userSearch, setUserSearch] = useState("");
   const [courseSearch, setCourseSearch] = useState("");
 
-  const [toast, setToast] = useState(null);
-
   const [deleteModal, setDeleteModal] = useState(null);
 
   const [roleModal, setRoleModal] = useState(null);
@@ -78,11 +77,6 @@ export default function AdminDashboard() {
     category: "",
     price: "",
   });
-
-  function showToast(msg, type = "success") {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 3000);
-  }
 
   useEffect(() => {
     (async () => {
@@ -153,13 +147,10 @@ export default function AdminDashboard() {
       const data = await res.json();
       if (data.success)
         setUsers((prev) => prev.filter((u) => u._id !== deleteModal.item._id));
-      showToast(
-        data.success ? "User deleted" : data.message,
-        data.success ? "success" : "error",
-      );
+      toast.success(data.message);
     } catch {
       setUsers((prev) => prev.filter((u) => u._id !== deleteModal.item._id));
-      showToast("User deleted (demo)");
+      toast.error("User deleted (demo)");
     }
     setBtnLoading(false);
     setDeleteModal(null);
@@ -183,17 +174,14 @@ export default function AdminDashboard() {
             u._id === roleModal._id ? { ...u, role: selectedRole } : u,
           ),
         );
-      showToast(
-        data.success ? "Role updated" : data.message,
-        data.success ? "success" : "error",
-      );
-    } catch {
+      toast.success(data.message);
+    } catch (error) {
       setUsers((prev) =>
         prev.map((u) =>
           u._id === roleModal._id ? { ...u, role: selectedRole } : u,
         ),
       );
-      showToast("Role updated (demo)");
+      toast.error(error.message);
     }
     setBtnLoading(false);
     setRoleModal(null);
@@ -214,13 +202,10 @@ export default function AdminDashboard() {
         setCourses((prev) =>
           prev.filter((c) => c._id !== deleteModal.item._id),
         );
-      showToast(
-        data.success ? "Course deleted" : data.message,
-        data.success ? "success" : "error",
-      );
-    } catch {
+      toast.success(data.message);
+    } catch (error) {
       setCourses((prev) => prev.filter((c) => c._id !== deleteModal.item._id));
-      showToast("Course deleted (demo)");
+      toast.error(error.message);
     }
     setBtnLoading(false);
     setDeleteModal(null);
@@ -244,15 +229,12 @@ export default function AdminDashboard() {
             c._id === editModal._id ? { ...c, ...editForm } : c,
           ),
         );
-      showToast(
-        data.success ? "Course updated" : data.message,
-        data.success ? "success" : "error",
-      );
-    } catch {
+      toast.success(data.message);
+    } catch (error) {
       setCourses((prev) =>
         prev.map((c) => (c._id === editModal._id ? { ...c, ...editForm } : c)),
       );
-      showToast("Course updated (demo)");
+      toast.error(error.message);
     }
     setBtnLoading(false);
     setEditModal(null);
@@ -288,25 +270,13 @@ export default function AdminDashboard() {
   if (pageLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <FaSpinner className="animate-spin text-green-500" size={32} />
+        <Loading />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
-      {toast && (
-        <div
-          className={`fixed top-4 right-4 z-50 flex items-center gap-3 text-white text-sm font-medium px-4 py-3 rounded-lg shadow-lg
-          ${toast.type === "error" ? "bg-red-500" : toast.type === "warning" ? "bg-yellow-500" : "bg-green-600"}`}
-        >
-          {toast.msg}
-          <button onClick={() => setToast(null)}>
-            <FaTimes size={12} />
-          </button>
-        </div>
-      )}
-
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Page heading */}
         <div className="mb-6">

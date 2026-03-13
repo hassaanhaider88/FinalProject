@@ -21,38 +21,9 @@ import {
 import { MdOutlineOndemandVideo } from "react-icons/md";
 import BackEnd_URI from "../Utils/BackEnd_URI";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import CATEGORIES from "../Utils/AllCategories";
-
-function Toast({ toast, onClose }) {
-  useEffect(() => {
-    const t = setTimeout(onClose, 3500);
-    return () => clearTimeout(t);
-  }, [onClose, toast]);
-
-  if (!toast) return null;
-  const styles = {
-    success: "bg-green-600",
-    error: "bg-red-500",
-    warning: "bg-yellow-500",
-  };
-  const icons = {
-    success: <FaCheckCircle size={15} />,
-    error: <FaTimesCircle size={15} />,
-    warning: <FaExclamationTriangle size={15} />,
-  };
-  return (
-    <div
-      className={`fixed top-5 right-5 z-100 flex items-center gap-3 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-2xl ${styles[toast.type]} animate-fade-in`}
-    >
-      {icons[toast.type]}
-      {toast.message}
-      <button onClick={onClose} className="ml-2 opacity-70 hover:opacity-100">
-        <FaTimes size={12} />
-      </button>
-    </div>
-  );
-}
 
 function ConfirmModal({ open, title, desc, onConfirm, onCancel, loading }) {
   if (!open) return null;
@@ -329,7 +300,6 @@ export default function InstructorDashboard() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
-  const [toast, setToast] = useState(null);
   const token = localStorage.getItem("LMSUser");
   if (!token) {
     navigate("/");
@@ -342,8 +312,6 @@ export default function InstructorDashboard() {
 
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState("All");
-
-  const showToast = (message, type = "success") => setToast({ message, type });
 
   const fetchCourses = async () => {
     setLoading(true);
@@ -358,7 +326,7 @@ export default function InstructorDashboard() {
       const data = await res.json();
       console.log(data);
       if (data.success) setCourses(data.data);
-      else showToast(data.message || "Failed to load courses", "error");
+      else toast(data.message || "Failed to load courses", "error");
     } catch {
       // Fallback mock data for demo purposes
       setCourses([
@@ -410,7 +378,7 @@ export default function InstructorDashboard() {
           price: "199",
         },
       ]);
-      showToast("Using demo data — API not connected", "warning");
+      toast.error("Using demo data — API not connected", "warning");
     } finally {
       setLoading(false);
     }
@@ -434,16 +402,16 @@ export default function InstructorDashboard() {
       const data = await res.json();
       if (data.success) {
         setCourses((prev) => [data.data, ...prev]);
-        showToast("Course created successfully!");
+        toast.success("Course created successfully!");
         setFormOpen(false);
       } else {
-        showToast(data.message || "Failed to create course", "error");
+        toast.error(data.message || "Failed to create course", "error");
       }
     } catch {
       // Demo fallback
       const newCourse = { _id: Date.now().toString(), ...form };
       setCourses((prev) => [newCourse, ...prev]);
-      showToast("Course created (demo mode)");
+      toast.success("Course created (demo mode)");
       setFormOpen(false);
     } finally {
       setActionLoading(false);
@@ -466,18 +434,17 @@ export default function InstructorDashboard() {
         setCourses((prev) =>
           prev.map((c) => (c._id === editData._id ? { ...c, ...form } : c)),
         );
-        showToast("Course updated successfully!");
+        toast.success("Course updated successfully!");
         setFormOpen(false);
         setEditData(null);
       } else {
-        showToast(data.message || "Failed to update course", "error");
+        toast.error(data.message || "Failed to update course", "error");
       }
-    } catch {
-      // Demo fallback
+    } catch (error) {
       setCourses((prev) =>
         prev.map((c) => (c._id === editData._id ? { ...c, ...form } : c)),
       );
-      showToast("Course updated (demo mode)");
+      toast.success(error.message);
       setFormOpen(false);
       setEditData(null);
     } finally {
@@ -498,22 +465,22 @@ export default function InstructorDashboard() {
       const data = await res.json();
       if (data.success) {
         setCourses((prev) => prev.filter((c) => c._id !== confirmDelete._id));
-        showToast("Course deleted successfully!");
+        toast.success("Course deleted successfully!");
         setConfirmDelete(null);
       } else {
-        showToast(data.message || "Failed to delete course", "error");
+        toast.error(data.message || "Failed to delete course", "error");
       }
-    } catch {
-      // Demo fallback
+    } catch (error) {
+
       setCourses((prev) => prev.filter((c) => c._id !== confirmDelete._id));
-      showToast("Course deleted (demo mode)");
+      toast.success(error.message);
       setConfirmDelete(null);
     } finally {
       setActionLoading(false);
     }
   };
 
-  /* ── Filtered Courses ───────────────────────────────────── */
+
   const filtered = courses.filter((c) => {
     const matchSearch =
       c.title?.toLowerCase().includes(search.toLowerCase()) ||

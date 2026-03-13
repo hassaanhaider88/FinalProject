@@ -30,7 +30,7 @@ const App = () => {
       return console.log(token);
     }
     const result = await getLocalStorageUser(token);
-    if (result.success) {
+    if (result?.success) {
       setUserData({
         name: result.data.name,
         email: result.data.email,

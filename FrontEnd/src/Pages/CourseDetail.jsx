@@ -16,6 +16,7 @@ import {
 } from "react-icons/fa";
 import { UserContext } from "../Store/UserStore";
 import BackEnd_URI from "../Utils/BackEnd_URI";
+import { toast } from "react-toastify";
 
 const CATEGORY_COLORS = {
   Design: "bg-purple-100 text-purple-700 border-purple-200",
@@ -65,10 +66,10 @@ export default function SingleCoursePage() {
         const res = await fetch(`${BackEnd_URI}/api/course/${id}`);
         const data = await res.json();
         if (data.success) setCourse(data.data);
-        else setError(data.message || "Course not found.");
+        else toast.error(data.message || "Unable to fetch course.");
       } catch (error) {
         console.log(error);
-        setError("Unable to connect to the server. Please try again.");
+        toast.error(error.message || "Unable to fetch course.");
       } finally {
         setLoading(false);
       }
@@ -91,6 +92,7 @@ export default function SingleCoursePage() {
           setIsEnrolled(data.data.some((e) => e.course?._id === id));
         }
       } catch (error) {
+        toast.error(error.message || "Unable to check enrollment.");
         console.log(error);
       } finally {
         setCheckingEnroll(false);
@@ -114,15 +116,12 @@ export default function SingleCoursePage() {
       const data = await res.json();
       if (data.success) {
         setIsEnrolled(true);
-        setEnrollMsg({ text: "You are now enrolled! 🎉", type: "success" });
+        toast.success("Enrollment successful.");
       } else {
-        setEnrollMsg({
-          text: data.message || "Enrollment failed.",
-          type: "error",
-        });
+        toast.error(data.message || "Enrollment failed.");
       }
     } catch (error) {
-      setEnrollMsg({ text: "Network error. Please try again.", type: "error" });
+      toast.error(error.message || "Enrollment failed.");
       console.log(error);
     } finally {
       setEnrollLoading(false);
